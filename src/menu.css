@@ -1,0 +1,80 @@
+
+html, body {
+    width: 300px;
+    height: 400px;
+}
+
+td, input, button {
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 6px;
+    border-color: #AAAAAA;
+}
+
+input:hover {
+    background: #EEEEEE;
+}
+
+input, button {
+    height: 30px;
+    width: 150px;
+    background: #FFFFFF;
+}
+
+.rowmain {
+    height: 30px;
+    width: 150px;
+}
+
+.groupname {
+    width: 150px;
+}
+
+.back {
+    width: 30px;
+}
+
+.add {
+    width: 30px;
+}
+
+.remove {
+    width: 30px;
+    border-color: #FF7777;
+}
+
+.removegroup {
+    width: 120px;
+    border-color: #FF7777;
+}
+
+
+.resettime {
+    width: 120px;
+    border-color: #FFDD77;
+}
+
+.remove:hover, .removegroup:hover {
+    background: #FFBBBB;
+}
+
+.resettime:hover {
+    background: #FFFCBB;
+}
+
+.timeok, .timewarn, .timeexpired {
+    
+}
+
+.timeok {
+    background: white;
+}
+
+.timewarn {
+    background: #FFFFAA;
+}
+
+.timeexpired {
+    background: #FF9999;
+}
+

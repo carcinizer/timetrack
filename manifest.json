@@ -1,0 +1,30 @@
+{
+
+  "manifest_version": 2,
+  "name": "TimeTrack",
+  "version": "0.1",
+
+  "description": "Helps you limit time you spend procrastinating on the internet",
+
+  "permissions": [
+    "storage",
+    "tabs"
+  ],
+
+  "browser_specific_settings": {
+    "gecko": {
+      "strict_min_version": "58.0a1"
+    }
+  },
+
+  "background": {
+    "page": "src/background.html"
+  },
+
+  "browser_action": {
+    "browser_style": true,
+    "default_title": "TimeTrack",
+    "default_popup": "src/menu.html"
+  }
+
+}
