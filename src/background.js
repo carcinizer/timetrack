@@ -34,8 +34,6 @@ function updateIcon(timefraction) {
     let begin = 3/2 * Math.PI;
     let end = (3/2 + 2*tf) * Math.PI;
 
-    console.log(begin, end);
-
     icon_ctx.fillStyle = gradient_ok_fg;
     drawSolidArc(icon_ctx, begin, end, false);
     icon_ctx.fillStyle = gradient_ok_bg;
