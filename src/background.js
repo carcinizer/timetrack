@@ -1,5 +1,50 @@
 import {withDataAsync} from './data.js';
 
+const icon_canvas = document.getElementById('icon-canvas');
+const icon_ctx = icon_canvas.getContext('2d');
+
+// Icon
+
+function createRadialGradient(ctx, inner, outer) {
+    let g = ctx.createRadialGradient(16,16, 13, 16,16, 15);
+    g.addColorStop(0, inner);
+    g.addColorStop(1, outer);
+    return g;
+}
+
+const gradient_ok_fg = createRadialGradient(icon_ctx, '#1cec52', '#28de57');
+const gradient_ok_bg = createRadialGradient(icon_ctx, '#1f8139', '#1a6f30');
+
+function drawSolidArc(ctx, begin, end, counterclockwise) {
+    
+    ctx.beginPath();
+    ctx.arc(16,16, 15, begin, end, counterclockwise);
+    ctx.arc(16,16, 13, end, begin, !counterclockwise);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function updateIcon(timefraction) {
+
+    let tf = timefraction;
+    tf = tf && tf > 0 ? tf : 0.00001;
+    tf = tf < 1       ? tf : 0.99999;
+
+    icon_ctx.clearRect(0,0,32,32);
+    let begin = 3/2 * Math.PI;
+    let end = (3/2 + 2*tf) * Math.PI;
+
+    console.log(begin, end);
+
+    icon_ctx.fillStyle = gradient_ok_fg;
+    drawSolidArc(icon_ctx, begin, end, false);
+    icon_ctx.fillStyle = gradient_ok_bg;
+    drawSolidArc(icon_ctx, begin, end, true);
+    browser.browserAction.setIcon({imageData: icon_ctx.getImageData(0,0,32,32)});
+}
+
+
+// Tab monitoring
 
 function match(url) {
     return (req) => {
@@ -58,7 +103,9 @@ browser.tabs.query({active: true}).then((acttabs) => {
         for (let i of acttabs) {
             changeActive(d, false, i.url)
         }
+        updateTimes(d);
     })
+
 
     function checkTabActivated(info) {
 
@@ -90,6 +137,24 @@ browser.tabs.query({active: true}).then((acttabs) => {
         });
     }
 
+    async function updateTimes(data) {
+        let ro = 1;
+
+        for (let k of activeTabs.keys()) {
+            let tab = await browser.tabs.get(k);
+            ro = changeActive(data, tab.url, tab.url);
+        }
+
+        let maxfrac = 0;
+        for (let g of data.groups) {
+            maxfrac = Math.max(maxfrac, g.time / g.limit);
+        }
+
+        updateIcon(maxfrac);
+
+        return ro;
+    }
+
     function checkTabMessage(message) {
         withDataAsync(async (data) => {
             if(message.type === "addSite") {
@@ -106,15 +171,7 @@ browser.tabs.query({active: true}).then((acttabs) => {
                 return ro;
             }
             else if(message.type === "updateTimes") {
-                
-                let ro = 1;
-
-                for (let k of activeTabs.keys()) {
-                    let tab = await browser.tabs.get(k);
-                    ro = changeActive(data, tab.url, tab.url);
-                }
-
-                return ro;
+                return await updateTimes(data);
             }
             else {
                 console.error(`Unknown message ${message.type}`)
@@ -127,5 +184,6 @@ browser.tabs.query({active: true}).then((acttabs) => {
     browser.runtime.onMessage.addListener(checkTabMessage);
 
     browser.tabs.onRemoved.addListener((id) => activeTabs.delete(id));
-
+    // TODO smarter interval
+    setInterval(() => {withDataAsync(async (d) => {return await updateTimes(d)})}, 30000);
 });
