@@ -14,6 +14,22 @@ function createRadialGradient(ctx, inner, outer) {
 
 const gradient_ok_fg = createRadialGradient(icon_ctx, '#1cec52', '#28de57');
 const gradient_ok_bg = createRadialGradient(icon_ctx, '#1f8139', '#1a6f30');
+const gradient_warn_fg = createRadialGradient(icon_ctx, '#f3ea59', '#c1ba49');
+const gradient_warn_bg = createRadialGradient(icon_ctx, '#757b47', '#646840');
+const gradient_expired_fg = createRadialGradient(icon_ctx, '#ef4334', '#d44434');
+const gradient_expired_bg = createRadialGradient(icon_ctx, '#833f38', '#76322c');
+
+function getGradient(frac) {
+    if(frac > 1.0) {
+        return {fg: gradient_expired_fg, bg: gradient_expired_bg}
+    }
+    else if(frac > 0.9) {
+        return {fg: gradient_warn_fg, bg: gradient_warn_bg}
+    }
+    else {
+        return {fg: gradient_ok_fg, bg: gradient_ok_bg}
+    }
+}
 
 function drawSolidArc(ctx, begin, end, counterclockwise) {
     
@@ -34,9 +50,11 @@ function updateIcon(timefraction) {
     let begin = 3/2 * Math.PI;
     let end = (3/2 + 2*tf) * Math.PI;
 
-    icon_ctx.fillStyle = gradient_ok_fg;
+    let gradients = getGradient(timefraction);
+
+    icon_ctx.fillStyle = gradients.fg;
     drawSolidArc(icon_ctx, begin, end, false);
-    icon_ctx.fillStyle = gradient_ok_bg;
+    icon_ctx.fillStyle = gradients.bg;
     drawSolidArc(icon_ctx, begin, end, true);
     browser.browserAction.setIcon({imageData: icon_ctx.getImageData(0,0,32,32)});
 }
