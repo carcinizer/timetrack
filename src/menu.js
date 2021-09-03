@@ -156,7 +156,7 @@ function createTextInput(root, properties, f) {
 }
 
 function createDiv(root, properties, f) {
-    let div = document.createElement('table');
+    let div = document.createElement('div');
     for (let k in properties) {
         div[k] = properties[k];
     }
