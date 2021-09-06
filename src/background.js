@@ -14,14 +14,19 @@ function createRadialGradient(ctx, inner, outer) {
 
 const gradient_ok_fg = createRadialGradient(icon_ctx, '#1cec52', '#28de57');
 const gradient_ok_bg = createRadialGradient(icon_ctx, '#1f8139', '#1a6f30');
+const gradient_inactive_fg = createRadialGradient(icon_ctx, '#0ec9cd', '#31abad');
+const gradient_inactive_bg = createRadialGradient(icon_ctx, '#457d7e', '#356668');
 const gradient_warn_fg = createRadialGradient(icon_ctx, '#f3ea59', '#c1ba49');
 const gradient_warn_bg = createRadialGradient(icon_ctx, '#757b47', '#646840');
 const gradient_expired_fg = createRadialGradient(icon_ctx, '#ef4334', '#d44434');
 const gradient_expired_bg = createRadialGradient(icon_ctx, '#833f38', '#76322c');
 
-function getGradient(frac) {
+function getGradient(frac, active) {
     if(frac > 1.0) {
         return {fg: gradient_expired_fg, bg: gradient_expired_bg}
+    }
+    else if(!active) {
+        return {fg: gradient_inactive_fg, bg: gradient_inactive_bg}
     }
     else if(frac > 0.9) {
         return {fg: gradient_warn_fg, bg: gradient_warn_bg}
@@ -40,7 +45,7 @@ function drawSolidArc(ctx, begin, end, counterclockwise) {
     ctx.fill();
 }
 
-function updateIcon(timefraction) {
+function updateIcon(timefraction, active) {
 
     let tf = timefraction;
     tf = tf && tf > 0 ? tf : 0.00001;
@@ -50,7 +55,7 @@ function updateIcon(timefraction) {
     let begin = 3/2 * Math.PI;
     let end = (3/2 + 2*tf) * Math.PI;
 
-    let gradients = getGradient(timefraction);
+    let gradients = getGradient(timefraction, active);
 
     icon_ctx.fillStyle = gradients.fg;
     drawSolidArc(icon_ctx, begin, end, false);
@@ -76,6 +81,7 @@ function match(url) {
 function changeActive(data, oldurl, newurl) {
 
     let ro = 1;
+    let active = false;
 
     for(let group of data.groups) {
 
@@ -93,6 +99,7 @@ function changeActive(data, oldurl, newurl) {
             let found = group.sites.find(match(newurl));
             if(found) {
                 ro = 0;
+                active = true;
                 group.last_active = Date.now();
             }
         }
@@ -105,7 +112,7 @@ function changeActive(data, oldurl, newurl) {
         }
     }
 
-    return ro;
+    return {ro: ro, active: active};
 }
 
 browser.tabs.query({active: true}).then((acttabs) => {
@@ -136,7 +143,8 @@ browser.tabs.query({active: true}).then((acttabs) => {
             activeTabs.delete(info.previousTabId);
             activeTabs.set(info.tabId, n.url);
             
-            return changeActive(data, o.url, n.url);
+            let ro = changeActive(data, o.url, n.url).ro;
+            return Math.min(ro, await updateTimes(data));
         });
     }
 
@@ -146,19 +154,25 @@ browser.tabs.query({active: true}).then((acttabs) => {
             if(changeInfo.url) {
                 let url = changeInfo.url;
 
-                let ret = changeActive(data, activeTabs[tabId], url);
+                let ro = changeActive(data, activeTabs[tabId], url).ro;
                 activeTabs.set(tabId, url);
-                return ret;
+
+                ro = Math.min(ro, await updateTimes(data));
+                return ro;
             }
         });
     }
 
     async function updateTimes(data) {
         let ro = 1;
+        let active = false;
 
         for (let k of activeTabs.keys()) {
             let tab = await browser.tabs.get(k);
-            ro = changeActive(data, tab.url, tab.url);
+            let info = changeActive(data, tab.url, tab.url);
+
+            active = active | info.active;
+            ro = Math.min(ro, active.ro);
         }
 
         let maxfrac = 0;
@@ -166,7 +180,7 @@ browser.tabs.query({active: true}).then((acttabs) => {
             maxfrac = Math.max(maxfrac, g.time / g.limit);
         }
 
-        updateIcon(maxfrac);
+        updateIcon(maxfrac, active);
 
         return ro;
     }
@@ -182,7 +196,7 @@ browser.tabs.query({active: true}).then((acttabs) => {
                     if(message.skipTab === k) {
                         oldurl = false;
                     }
-                    ro = Math.min(ro, changeActive(data, oldurl, tab.url));
+                    ro = Math.min(ro, changeActive(data, oldurl, tab.url).ro);
                 }
                 return ro;
             }
