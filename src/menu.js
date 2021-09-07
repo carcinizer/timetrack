@@ -85,6 +85,10 @@ const cls = {
         className: "rowmain"
     }},
 
+    timestats: {
+        className: "timestats"
+    },
+
     time: (group) => {
         let s = group.time > group.limit ? "timeexpired"
               : group.time > group.limit * 0.9 ? "timewarn"
@@ -218,22 +222,28 @@ function listGroup(n, editid) {
     withData((data) => {
         let g = data.groups[n];
 
-        createButton(table_root, cls.back, () => {listGroups()});
-        createTextInput(table_root, cls.groupname(`${g.name}`), (name) => {
-            withData((d) => {
-                d.groups[n].name = name;
+        createDiv(table_root, {className: "line"}, (div) => {
+            createButton(div, cls.back, () => {listGroups()});
+            createTextInput(div, cls.groupname(`${g.name}`), (name) => {
+                withData((d) => {
+                    d.groups[n].name = name;
+                });
             });
         });
 
-        createDiv(table_root, {}, (div) => {
-            let timetext = createText(div, "span", {}, "Limit: ")
-            createTextInput(timetext, cls.timelimit(data.groups[n].limit), (lim) => {
+        createDiv(table_root, {className: "line"}, (div) => {
+            let timetext = createText(div, "span", cls.timetext, "Limit: ")
+            createTextInput(div, cls.timelimit(data.groups[n].limit), (lim) => {
                 withData((d) => {
                     let newlimit = hmsToTime(lim, d.groups[n].limit);
                     d.groups[n].limit = newlimit; 
                     lim = newlimit;
                 })
             });
+
+        });
+
+        createDiv(table_root, {className: "line"}, (div) => {
             createButton(div, cls.resettime, () => {
                 withData((d) => {d.groups[n].time = 0})
             })
@@ -289,7 +299,7 @@ function listGroups() {
                     createButton(r, cls.rowmain(`${g[l].name}`), () => {listGroup(l)});
                 }
                 else if(c===1) {
-                    let t = createText(r, "span", {}, timeText(g[l]));
+                    let t = createText(r, "span", cls.timestats, timeText(g[l]));
                     time_update_targets[l] = t;
                     return cls.time(g[l]);
                 }

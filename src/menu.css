@@ -1,80 +1,95 @@
 
-html, body {
-    width: 300px;
+
+
+body {
+    width: 280px;
     height: 400px;
+    margin: 10px;
 }
 
-td, input, button {
-    border-width: 1px;
-    border-style: solid;
-    border-radius: 6px;
-    border-color: #AAAAAA;
-}
-
-input:hover {
-    background: #EEEEEE;
+* {
+    background: #2B2A33;
+    color: #f1eff5;
 }
 
 input, button {
-    height: 30px;
-    width: 150px;
-    background: #FFFFFF;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 6px;
+    border-color: #4B4A53;
+    height: 25px;
+    margin: 2px;
+}
+
+input:hover {
+    background: #3B3A43;
+}
+
+.line, tr {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.line {
+    margin-bottom: 6px;
 }
 
 .rowmain {
-    height: 30px;
+    height: 25px;
     width: 150px;
+}
+
+.timestats {
+    height: 30px;
+    flex: 2;
 }
 
 .groupname {
-    width: 150px;
+    flex: 1;
+    font-size: 1.2em;
+    font-weight: bold;
+    text-align: center;
 }
 
 .back {
-    width: 30px;
+    flex: 0 25px;
 }
 
 .add {
-    width: 30px;
+    width: 25px;
+    margin: 2px 4px;
 }
 
 .remove {
-    width: 30px;
-    border-color: #FF7777;
+    width: 25px;
 }
 
-.removegroup {
-    width: 120px;
-    border-color: #FF7777;
-}
-
-
-.resettime {
-    width: 120px;
-    border-color: #FFDD77;
+.remove, .removegroup {
+    border-color: #92403d;
 }
 
 .remove:hover, .removegroup:hover {
-    background: #FFBBBB;
+    background: #92403d;
+}
+
+.resettime {
+    border-color: #8a7d4c;
 }
 
 .resettime:hover {
-    background: #FFFCBB;
+    background: #8a7d4c;
 }
 
-.timeok, .timewarn, .timeexpired {
-    
-}
-
-.timeok {
-    background: white;
+.timelimit {
+    flex: 1;
 }
 
 .timewarn {
-    background: #FFFFAA;
+    color: #f3ea59;
 }
 
 .timeexpired {
-    background: #FF9999;
+    color: #ef4334;
 }
 
