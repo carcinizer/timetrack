@@ -89,7 +89,7 @@ function match(url) {
 
 function changeActive(data, oldurl, newurl) {
 
-    let ro = 1;
+    let ro = true;
     let active = false;
     let activefrac = 0;
     let activegroups = new Set();
@@ -101,7 +101,7 @@ function changeActive(data, oldurl, newurl) {
         if(oldurl) {
             let found = group.sites.find(match(oldurl));
             if(found) {
-                ro = 0;
+                ro = false;
                 group.time += Date.now() - group.last_active;
             }
         }
@@ -110,7 +110,7 @@ function changeActive(data, oldurl, newurl) {
         if(newurl) {
             let found = group.sites.find(match(newurl));
             if(found) {
-                ro = 0;
+                ro = false;
                 
                 active = true;
                 activefrac = Math.max(activefrac, group.time / group.limit);
@@ -122,7 +122,7 @@ function changeActive(data, oldurl, newurl) {
 
         // Cyclic reset
         if(Date.now() > group.reset_last + group.reset) {
-            ro = 0;
+            ro = false;
             group.reset_last = getPastResetDate();
             group.time = Math.max(0, group.time - group.limit);
         }
@@ -149,7 +149,7 @@ browser.tabs.query({active: true}).then((acttabs) => {
 
 
     async function updateTimes(data) {
-        let ro = 1;
+        let ro = true;
         let active = false;
         let max_active = false;
         let activefrac = 0;
@@ -166,7 +166,7 @@ browser.tabs.query({active: true}).then((acttabs) => {
                     activegroups.add(i);
                 }
             }
-            ro = Math.min(ro, active.ro);
+            ro &= active.ro;
         }
 
         let maxfrac = 0;
@@ -198,7 +198,7 @@ browser.tabs.query({active: true}).then((acttabs) => {
             activeTabs.set(info.tabId, n.url);
             
             let ro = changeActive(data, o.url, n.url).ro;
-            return Math.min(ro, await updateTimes(data));
+            return ro & await updateTimes(data);
         });
     }
 
@@ -211,8 +211,7 @@ browser.tabs.query({active: true}).then((acttabs) => {
                 let ro = changeActive(data, activeTabs[tabId], url).ro;
                 activeTabs.set(tabId, url);
 
-                ro = Math.min(ro, await updateTimes(data));
-                return ro;
+                return ro & await updateTimes(data);
             }
         });
     }
@@ -220,7 +219,7 @@ browser.tabs.query({active: true}).then((acttabs) => {
     function checkTabMessage(message) {
         withDataAsync(async (data) => {
             if(message.type === "addSite") {
-                let ro = 1;
+                let ro = true;
                 for (let k of activeTabs.keys()) {
 
                     let tab = await browser.tabs.get(k);
@@ -228,7 +227,7 @@ browser.tabs.query({active: true}).then((acttabs) => {
                     if(message.skipTab === k) {
                         oldurl = false;
                     }
-                    ro = Math.min(ro, changeActive(data, oldurl, tab.url).ro);
+                    ro &= changeActive(data, oldurl, tab.url).ro;
                 }
                 return ro;
             }

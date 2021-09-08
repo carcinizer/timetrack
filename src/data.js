@@ -36,8 +36,8 @@ async function withData(f) {
         promise = false;
     }
 
-    let ret = f(data);
-    if(!ret) {
+    let readonly = f(data);
+    if(!readonly) {
         await saveData(data);
     }
 }
@@ -49,8 +49,8 @@ async function withDataAsync(f) {
         promise = false;
     }
 
-    let ret = await f(data);
-    if(!ret) {
+    let readonly = await f(data);
+    if(!readonly) {
         await saveData(data);
     }
 }
