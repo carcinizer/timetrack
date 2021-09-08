@@ -1,4 +1,5 @@
 import {withData, withDataAsync} from './data.js';
+import {getPastResetDate, dayDuration} from './utils.js';
 
 async function activeTab() {
     let tab = (await browser.tabs.query({active: true, currentWindow: true}))[0];
@@ -14,8 +15,8 @@ function addGroup(data, name, limit) {
         "name": name, 
         "time": 0, 
         "limit": limit, 
-        "reset": 24*60*60*1000, // 24 hours
-        "reset_last": Date.now(),
+        "reset": dayDuration,
+        "reset_last": getPastResetDate(),
         "last_active": Date.now(),
         "sites": []
     });

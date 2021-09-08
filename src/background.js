@@ -1,9 +1,10 @@
 import {withDataAsync} from './data.js';
+import {getPastResetDate} from './utils.js';
+
+// Icon
 
 const icon_canvas = document.getElementById('icon-canvas');
 const icon_ctx = icon_canvas.getContext('2d');
-
-// Icon
 
 function createRadialGradient(ctx, inner, outer) {
     let g = ctx.createRadialGradient(16,16, 13, 16,16, 15);
@@ -107,7 +108,7 @@ function changeActive(data, oldurl, newurl) {
         // Cyclic reset
         if(Date.now() > group.reset_last + group.reset) {
             ro = 0;
-            group.reset_last = Date.now();
+            group.reset_last = getPastResetDate();
             group.time = Math.max(0, group.time - group.limit);
         }
     }
