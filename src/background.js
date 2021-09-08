@@ -7,7 +7,7 @@ const icon_canvas = document.getElementById('icon-canvas');
 const icon_ctx = icon_canvas.getContext('2d');
 
 function createRadialGradient(ctx, inner, outer) {
-    let g = ctx.createRadialGradient(16,16, 13, 16,16, 15);
+    let g = ctx.createRadialGradient(16,16, 11, 16,16, 15);
     g.addColorStop(0, inner);
     g.addColorStop(1, outer);
     return g;
@@ -26,9 +26,6 @@ function getGradient(frac, active) {
     if(frac > 1.0) {
         return {fg: gradient_expired_fg, bg: gradient_expired_bg}
     }
-    else if(!active) {
-        return {fg: gradient_inactive_fg, bg: gradient_inactive_bg}
-    }
     else if(frac > 0.9) {
         return {fg: gradient_warn_fg, bg: gradient_warn_bg}
     }
@@ -37,31 +34,42 @@ function getGradient(frac, active) {
     }
 }
 
-function drawSolidArc(ctx, begin, end, counterclockwise) {
+function drawSolidArc(ctx, begin, end, counterclockwise, radius_outer, radius_inner) {
     
     ctx.beginPath();
-    ctx.arc(16,16, 15, begin, end, counterclockwise);
-    ctx.arc(16,16, 13, end, begin, !counterclockwise);
+    ctx.arc(16,16, radius_outer, begin, end, counterclockwise);
+    ctx.arc(16,16, radius_inner, end, begin, !counterclockwise);
     ctx.closePath();
     ctx.fill();
 }
 
-function updateIcon(timefraction, active) {
+function drawProgressCircle(timefraction, colortf, active, radius_outer, radius_inner) {
 
+    // clamp fractions for correct rendering
     let tf = timefraction;
     tf = tf && tf > 0 ? tf : 0.00001;
     tf = tf < 1       ? tf : 0.99999;
 
-    icon_ctx.clearRect(0,0,32,32);
     let begin = 3/2 * Math.PI;
     let end = (3/2 + 2*tf) * Math.PI;
 
-    let gradients = getGradient(timefraction, active);
+    let gradients = getGradient(colortf, active);
 
     icon_ctx.fillStyle = gradients.fg;
-    drawSolidArc(icon_ctx, begin, end, false);
+    drawSolidArc(icon_ctx, begin, end, false, radius_outer, radius_inner);
     icon_ctx.fillStyle = gradients.bg;
-    drawSolidArc(icon_ctx, begin, end, true);
+    drawSolidArc(icon_ctx, begin, end, true, radius_outer, radius_inner);
+}
+
+function updateIcon(timefraction_max, max_active, timefraction_current, active) {
+
+    icon_ctx.clearRect(0,0,32,32);
+    
+    drawProgressCircle(timefraction_max, timefraction_max, max_active, 15, active ? 12 : 10);
+    if(active) {
+        drawProgressCircle(timefraction_current, timefraction_max, true, 7, 10);
+    }
+
     browser.browserAction.setIcon({imageData: icon_ctx.getImageData(0,0,32,32)});
 }
 
@@ -83,8 +91,11 @@ function changeActive(data, oldurl, newurl) {
 
     let ro = 1;
     let active = false;
+    let activefrac = 0;
+    let activegroups = new Set();
 
-    for(let group of data.groups) {
+    for(let groupid in data.groups) {
+        let group = data.groups[groupid];
 
         // Deactivate old, add time elapsed
         if(oldurl) {
@@ -100,7 +111,11 @@ function changeActive(data, oldurl, newurl) {
             let found = group.sites.find(match(newurl));
             if(found) {
                 ro = 0;
+                
                 active = true;
+                activefrac = Math.max(activefrac, group.time / group.limit);
+                activegroups.add(groupid);
+
                 group.last_active = Date.now();
             }
         }
@@ -113,10 +128,12 @@ function changeActive(data, oldurl, newurl) {
         }
     }
 
-    return {ro: ro, active: active};
+    return {ro: ro, active: active, activefrac: activefrac, activegroups: activegroups};
 }
 
 browser.tabs.query({active: true}).then((acttabs) => {
+
+    // Initialize
 
     let activeTabs = new Map();
     for (let i of acttabs) {
@@ -129,6 +146,42 @@ browser.tabs.query({active: true}).then((acttabs) => {
         }
         updateTimes(d);
     })
+
+
+    async function updateTimes(data) {
+        let ro = 1;
+        let active = false;
+        let max_active = false;
+        let activefrac = 0;
+        let activegroups = new Set();
+
+        for (let k of activeTabs.keys()) {
+            let tab = await browser.tabs.get(k);
+            let info = changeActive(data, tab.url, tab.url);
+
+            if(info.active) {
+                active = true;
+                activefrac = Math.max(activefrac, info.activefrac);
+                for(let i of info.activegroups) {
+                    activegroups.add(i);
+                }
+            }
+            ro = Math.min(ro, active.ro);
+        }
+
+        let maxfrac = 0;
+
+        for (let gid in data.groups) {
+            let g = data.groups[gid];
+
+            maxfrac = Math.max(maxfrac, g.time / g.limit);
+            max_active |= activegroups.has(gid);
+        }
+
+        updateIcon(maxfrac, max_active, activefrac, active);
+
+        return ro;
+    }
 
 
     function checkTabActivated(info) {
@@ -162,28 +215,6 @@ browser.tabs.query({active: true}).then((acttabs) => {
                 return ro;
             }
         });
-    }
-
-    async function updateTimes(data) {
-        let ro = 1;
-        let active = false;
-
-        for (let k of activeTabs.keys()) {
-            let tab = await browser.tabs.get(k);
-            let info = changeActive(data, tab.url, tab.url);
-
-            active = active | info.active;
-            ro = Math.min(ro, active.ro);
-        }
-
-        let maxfrac = 0;
-        for (let g of data.groups) {
-            maxfrac = Math.max(maxfrac, g.time / g.limit);
-        }
-
-        updateIcon(maxfrac, active);
-
-        return ro;
     }
 
     function checkTabMessage(message) {
