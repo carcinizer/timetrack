@@ -21,8 +21,12 @@ input, button {
     margin: 2px;
 }
 
-input:hover {
+input:hover, .resettime-tooltip:active {
     background: #3B3A43;
+}
+
+input:active {
+    background: #1B1A23;
 }
 
 .line, tr {
@@ -73,12 +77,20 @@ input:hover {
     background: #92403d;
 }
 
+.remove:active, .removegroup:active {
+    background: #72100d;
+}
+
 .resettime {
     border-color: #8a7d4c;
 }
 
 .resettime:hover {
     background: #8a7d4c;
+}
+
+.resettime:active {
+    background: #6a5d2c;
 }
 
 .timelimit {
