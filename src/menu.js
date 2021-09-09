@@ -45,10 +45,13 @@ function timeToHms(time) {
 
 function hmsToTime(hms, fallback) {
     let str = hms.split(":")
-    let h = Number(str[0]);
-    let m = Number(str[1]);
-    let s = Number(str[2]);
-    return h+m+s === NaN ? fallback : s*1000+m*60000+h*3600000;
+    let n1 = Number(str[0]);
+    let n2 = Number(str[1]);
+    let n3 = Number(str[2]);
+    return isNaN(n1) ? fallback 
+         : isNaN(n2) ? n1*1000
+         : isNaN(n3) ? n1*60000+n2*1000
+         : n1*3600000+n2*60000+n3*1000;
 }
 
 let table_root = document.getElementById("table_root");
