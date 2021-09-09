@@ -105,6 +105,12 @@ const cls = {
     resettime: {
         value: "Reset time",
         className: "resettime"
+    },
+
+    resettime_tooltip: {
+        value: "?",
+        title: "Automatic reset occurs every day on 4:00 AM, by subtracting the limit from total time.",
+        className: "resettime-tooltip"
     }
 }
 
@@ -245,8 +251,12 @@ function listGroup(n, editid) {
         });
 
         createDiv(table_root, {className: "line"}, (div) => {
-            createButton(div, cls.resettime, () => {
-                withData((d) => {d.groups[n].time = 0})
+            createDiv(div, {}, (div2) => {
+                createButton(div2, cls.resettime, () => {
+                    withData((d) => {d.groups[n].time = 0})
+                })
+                let tooltip = createButton(div2, cls.resettime_tooltip, () => {});
+                
             })
             createButton(div, cls.removegroup, () => {
                 withData((d) => {removeGroup(d, n); listGroups()})
