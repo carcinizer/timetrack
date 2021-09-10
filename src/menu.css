@@ -1,9 +1,8 @@
 
 
-
 body {
-    width: 280px;
-    height: 400px;
+    width: 300px;
+    height: 450px;
     margin: 10px;
 }
 
@@ -12,7 +11,7 @@ body {
     color: #f1eff5;
 }
 
-input, button {
+input, button, select {
     border-width: 1px;
     border-style: solid;
     border-radius: 6px;
@@ -21,12 +20,16 @@ input, button {
     margin: 2px;
 }
 
-input:hover, .resettime-tooltip:active {
+input:hover, select:hover, .resettime-tooltip:active {
     background: #3B3A43;
 }
 
 input:active {
     background: #1B1A23;
+}
+
+input:disabled, select:disabled {
+    color: #4B4A53;
 }
 
 .line, tr {

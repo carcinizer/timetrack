@@ -1,6 +1,6 @@
 import {withData, withDataAsync} from './data.js';
-import {getPastResetDate, dayDuration} from './utils.js';
-import {cls, createText, createButton, createDiv, createTextInput, createTable, timeText, hmsToTime} from './ui.js';
+import {getPastResetDate, dayDuration, matchers} from './utils.js';
+import {cls, createText, createButton, createDiv, createTextInput, createTable, createSelect, timeText, hmsToTime} from './ui.js';
 
 
 let table_root = document.getElementById("table_root");
@@ -48,7 +48,7 @@ function listGroup(n) {
         showGroupTimeLine(g,n);
         showGroupOptions(g,n);
         
-        createText(table_root, "h3", {}, "Sites to track (domains):");
+        createText(table_root, "h3", {}, "Sites to track:");
 
         showGroupSites(g,n);
     })
@@ -104,21 +104,38 @@ function showGroupOptions(g,n) {
 
 function showGroupSites(g,n) {
     
-    createTable(table_root, {}, g.sites.length, 2, (r,l,c) => {
-        if(c===0) { // Domain
-            createTextInput(r, cls.rowmain(g.sites[l].url), (url) => {
+    createTable(table_root, {}, g.sites.length, 3, (r,l,c) => {
+        if(c===0) { // Type
+            createSelect(r, {}, 
+                g.sites[l].type, 
+                matchers.map((m) => m.name), 
+                (i) => {
+                    withData((d) => {
+                        d.groups[n].sites[l].type = i;
+                    });
+                    listGroup(n);
+            });
+        }
+        else if(c===1) { // Domain
+            let uclass = cls.rowmain(g.sites[l].url)
+
+            if( !matchers[g.sites[l].type].has_url ) {
+                uclass.disabled = true;
+            }
+
+            createTextInput(r, uclass, (url) => {
                 withData((d) => {
                     d.groups[n].sites[l].url = url;
                 });
-                listGroup(n, null);
+                listGroup(n);
             });
         }
-        else if(c===1) { // Remove
+        else if(c===2) { // Remove
             createButton(r, cls.remove, () => {
                 withData((d) => {
                     removeSite(d,n,l);
                 });
-                listGroup(n, null);
+                listGroup(n);
             })
         }
     });

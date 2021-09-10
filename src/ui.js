@@ -144,6 +144,29 @@ function createTable(root, properties, lines, columns, f) {
     return table;
 }
 
+// Create select, execute f(entry_number) on select
+function createSelect(root, properties, selected, options, f) {
+    let select = document.createElement('select');
+
+    for (let i in options) {
+        let option = document.createElement('option');
+
+        option.value = String(i);
+        option.innerText = options[i];
+
+        select.append(option);
+    }
+
+    select.value = String(selected);
+    select.onchange = () => {f(Number(select.value))}
+
+    for (let k in properties) {
+        select[k] = properties[k];
+    }
+
+    root.append(select);
+    return select;
+}
 
 function timeToHms(time) {
     let hours = Math.floor(time / 3600000);
@@ -169,4 +192,4 @@ function timeText(group) {
     return `${timeToHms(group.time)}/${timeToHms(group.limit)}`;
 }
 
-export {cls, createText, createButton, createDiv, createTextInput, createTable, timeText, timeToHms, hmsToTime};
+export {cls, createText, createButton, createDiv, createTextInput, createTable, createSelect, timeText, timeToHms, hmsToTime};

@@ -13,7 +13,7 @@ function getPastResetDate() {
 
 const matchers = [
     {
-        name: "Hostname includes",
+        name: "Domain has",
         has_url: true,
         match(entry, tab_url) {
             try {
@@ -25,7 +25,7 @@ const matchers = [
         }
     },
     {
-        name: "Hostname (exact)",
+        name: "Domain is",
         has_url: true,
         match(entry, tab_url) {
             try {
@@ -37,7 +37,7 @@ const matchers = [
         }
     },
     {
-        name: "URL includes",
+        name: "URL has",
         has_url: true,
         match(entry, tab_url) {
             try {
@@ -49,7 +49,7 @@ const matchers = [
         }
     },
     {
-        name: "URL (exact)",
+        name: "URL is",
         has_url: true,
         match(entry, tab_url) {
             try {
@@ -61,7 +61,7 @@ const matchers = [
         }
     },
     {
-        name: "Any active tab",
+        name: "Any",
         has_url: false, 
         match(entry, tab_url) {
             return true;
