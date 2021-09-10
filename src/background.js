@@ -1,5 +1,5 @@
 import {withDataAsync} from './data.js';
-import {getPastResetDate} from './utils.js';
+import {getPastResetDate, match} from './utils.js';
 
 // Icon
 
@@ -75,17 +75,6 @@ function updateIcon(timefraction_max, max_active, timefraction_current, active) 
 
 
 // Tab monitoring
-
-function match(url) {
-    return (req) => {
-        try {
-            return req.url.length > 0 && new URL(url).hostname.includes(req.url);
-        }
-        catch {
-            return false;
-        }
-    }
-}
 
 function changeActive(data, oldurl, newurl) {
 

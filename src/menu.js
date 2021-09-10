@@ -171,19 +171,20 @@ function addGroup(data, name, limit) {
     }
 
     data.groups.push({
-        "name": name, 
-        "time": 0, 
-        "limit": limit, 
-        "reset": dayDuration,
-        "reset_last": getPastResetDate(),
-        "last_active": Date.now(),
-        "sites": []
+        name: name, 
+        time: 0, 
+        limit: limit, 
+        reset: dayDuration,
+        reset_last: getPastResetDate(),
+        last_active: Date.now(),
+        sites: []
     });
 }
 
 function addSite(data, group, url) {
     data.groups[group].sites.push({
-        "url": url, 
+        type: 0, // "Hostname includes"
+        url: url, 
         newly_added: true // required to not add time since before site entry creation
     });
 }
