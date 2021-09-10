@@ -102,7 +102,10 @@ function changeActive(data, oldurl, newurl) {
             let found = group.sites.find(match(oldurl));
             if(found) {
                 ro = false;
-                group.time += Date.now() - group.last_active;
+                if(!found.newly_added) { // do not add time before entry creation
+                    group.time += Date.now() - group.last_active;
+                }
+                found.newly_added = false;
             }
         }
 
@@ -111,7 +114,7 @@ function changeActive(data, oldurl, newurl) {
             let found = group.sites.find(match(newurl));
             if(found) {
                 ro = false;
-                
+
                 active = true;
                 activefrac = Math.max(activefrac, group.time / group.limit);
                 activegroups.add(groupid);
@@ -218,20 +221,7 @@ browser.tabs.query({active: true}).then((acttabs) => {
 
     function checkTabMessage(message) {
         withDataAsync(async (data) => {
-            if(message.type === "addSite") {
-                let ro = true;
-                for (let k of activeTabs.keys()) {
-
-                    let tab = await browser.tabs.get(k);
-                    let oldurl = tab.url;
-                    if(message.skipTab === k) {
-                        oldurl = false;
-                    }
-                    ro &= changeActive(data, oldurl, tab.url).ro;
-                }
-                return ro;
-            }
-            else if(message.type === "updateTimes") {
+            if(message.type === "updateTimes") {
                 return await updateTimes(data);
             }
             else {

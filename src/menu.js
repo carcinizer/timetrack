@@ -125,11 +125,14 @@ function showGroupSites(g,n) {
     
     // Add new site
     createButton(table_root, cls.add, async () => {
+        let tab = await activeTab();
+
         await withDataAsync(async (d) => {
-            let tab = await activeTab();
-            addSite(d, n, tab.url);
-            browser.runtime.sendMessage({type: "addSite", skipTab: tab.id});
+            let newSite = addSite(d, n, tab.url);
         });
+
+        browser.runtime.sendMessage({type: "updateTimes"});
+
         listGroup(n, g.sites.length);
     })
 }
@@ -179,7 +182,10 @@ function addGroup(data, name, limit) {
 }
 
 function addSite(data, group, url) {
-    data.groups[group].sites.push({"url": url});
+    data.groups[group].sites.push({
+        "url": url, 
+        newly_added: true // required to not add time since before site entry creation
+    });
 }
 
 function removeGroup(data, index) {
