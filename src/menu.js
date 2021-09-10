@@ -1,6 +1,6 @@
 import {withData, withDataAsync} from './data.js';
 import {getPastResetDate, dayDuration} from './utils.js';
-import {cls, createText, createButton, createDiv, createTextInput, createTable} from './ui.js';
+import {cls, createText, createButton, createDiv, createTextInput, createTable, timeText, hmsToTime} from './ui.js';
 
 async function activeTab() {
     let tab = (await browser.tabs.query({active: true, currentWindow: true}))[0];
@@ -35,35 +35,12 @@ function removeSite(data, group, index) {
     data.groups[group].sites.splice(index, 1);
 }
 
-function timeToHms(time) {
-    let hours = Math.floor(time / 3600000);
-    let minutes = Math.floor((time / 60000) % 60);
-    let seconds = Math.floor((time / 1000) % 60);
-    let m0 = minutes > 9 ? "" : "0";
-    let s0 = seconds > 9 ? "" : "0";
-    return `${hours}:${m0}${minutes}:${s0}${seconds}`;
-}
 
-function hmsToTime(hms, fallback) {
-    let str = hms.split(":")
-    let n1 = Number(str[0]);
-    let n2 = Number(str[1]);
-    let n3 = Number(str[2]);
-    return isNaN(n1) ? fallback 
-         : isNaN(n2) ? n1*1000
-         : isNaN(n3) ? n1*60000+n2*1000
-         : n1*3600000+n2*60000+n3*1000;
-}
+// Main logic
 
 let table_root = document.getElementById("table_root");
 let time_update_targets = {};
 
-
-function timeText(group) {
-    return `${timeToHms(group.time)}/${timeToHms(group.limit)}`;
-}
-
-// Main logic
 
 function clean() {
     while(table_root.firstChild) {
