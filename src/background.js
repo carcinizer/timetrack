@@ -79,7 +79,7 @@ function updateIcon(timefraction_max, max_active, timefraction_current, active) 
 function match(url) {
     return (req) => {
         try {
-            return url.length > 0 && new URL(url).hostname.includes(req.url);
+            return req.url.length > 0 && new URL(url).hostname.includes(req.url);
         }
         catch {
             return false;
