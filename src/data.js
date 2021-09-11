@@ -1,5 +1,5 @@
 
-const loc = "local"; // "local" or "sync"
+const loc = "sync"; // "local" or "sync"
 
 async function loadData() {
     try {
