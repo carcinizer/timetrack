@@ -197,7 +197,7 @@ browser.tabs.query({active: true}).then((acttabs) => {
     function checkTabUpdated(tabId, changeInfo, tab) {
         
         withDataAsync(async (data) => {
-            if(changeInfo.url) {
+            if(changeInfo.url && activeTabs.has(tabId)) {
                 let url = changeInfo.url;
 
                 let ro = changeActive(data, activeTabs[tabId], url).ro;
