@@ -179,7 +179,8 @@ async function updateTimes() {
 
 async function activeTab() {
     let tab = (await browser.tabs.query({active: true, currentWindow: true}))[0];
-    return {url: new URL(tab.url).hostname, id: tab.id};
+    let url = new URL(tab.url).hostname || "about:";
+    return {url, id: tab.id};
 }
 
 function addGroup(data, name, limit) {

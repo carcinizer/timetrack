@@ -17,6 +17,9 @@ const matchers = [
         has_url: true,
         match(entry, tab_url) {
             try {
+                if(entry == "about:") {
+                    return true;
+                }
                 return entry.url.length > 0 && new URL(tab_url).hostname.includes(entry.url);
             }
             catch {
@@ -29,6 +32,9 @@ const matchers = [
         has_url: true,
         match(entry, tab_url) {
             try {
+                if(entry == "about:") {
+                    return true;
+                }
                 return entry.url.length > 0 && new URL(tab_url).hostname == entry.url;
             }
             catch {
