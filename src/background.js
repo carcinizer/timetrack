@@ -115,7 +115,7 @@ function changeActive(data, oldurl, newurl) {
         // Cyclic reset
         if(Date.now() > group.reset_last + group.reset) {
             ro = false;
-            group.reset_last = getPastResetDate();
+            group.reset_last += group.reset;
             group.time = Math.max(0, group.time - group.limit);
         }
     }

@@ -5,7 +5,7 @@ const resetHour = 4;
 function getPastResetDate() {
     let d = new Date();
     if(d.getHours() < resetHour) {
-        d -= day;
+        d = new Date(d - dayDuration);
     }
     d.setHours(resetHour, 0, 0);
     return d;
