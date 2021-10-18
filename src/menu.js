@@ -112,6 +112,7 @@ function showGroupSites(g,n) {
                 (i) => {
                     withData((d) => {
                         d.groups[n].sites[l].type = i;
+                        d.groups[n].sites[l].newly_added = true;
                     });
                     listGroup(n);
             });
