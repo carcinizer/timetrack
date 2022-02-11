@@ -14,7 +14,7 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "timetrack@carcinizer",
-      "strict_min_version": "58.0a1"
+      "strict_min_version": "59.0"
     }
   },
 
