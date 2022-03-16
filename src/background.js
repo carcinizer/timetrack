@@ -1,4 +1,4 @@
-import {withDataAsync} from './data.js';
+import {withData, saveData, newData} from './data.js';
 import {getPastResetDate, match} from './utils.js';
 
 // Icon
@@ -74,156 +74,136 @@ function updateIcon(timefraction_max, max_active, timefraction_current, active) 
 }
 
 
-// Tab monitoring
+class BackgroundState {
+    constructor(test) {
+        withData(d => {this.data = test ? newData() : d})
+        this.now = test ? () => 0 : Date.now;
 
-function changeActive(data, oldurl, newurl) {
+        this.saveData = test ? () => {} : () => {saveData(this.data)}
 
-    let ro = true;
-    let active = false;
-    let activefrac = 0;
-    let activegroups = new Set();
+        this.last_update_time = this.now();
+        this.last_update_active = false;
+        this.updateTabs();
 
-    for(let groupid in data.groups) {
-        let group = data.groups[groupid];
+        // Event hooks
+        // TODO - cleanup?
+        chrome.tabs.onActivated.addListener(() => {this.update()})
+        chrome.tabs.onUpdated.addListener(() => {this.update()})
+        chrome.tabs.onRemoved.addListener(() => {this.update()})
+        chrome.runtime.onMessage.addListener((msg,s,sr) => {this.onMessage(msg,s,sr)})
+        setInterval(() => {this.update()}, 30000);
 
-        // Deactivate old, add time elapsed
-        if(oldurl) {
-            let found = group.sites.find(match(oldurl));
-            if(found) {
-                ro = false;
-                if(!found.newly_added) { // do not add time before entry creation
-                    group.time += Date.now() - group.last_active;
+        console.log("Constructed: ", this)
+    }
+
+    updateTabs() {
+        this.tabs = new Set(chrome.tabs.query({active: true}));
+        return this
+    }
+
+    update() {
+        return this.timePassed()
+            .updateTabs()
+            .rewind()
+            .saveData();
+    }
+
+    onMessage({type, content}, sender, sendResponse) {
+        let state = this;
+        console.log("Got", type, content)
+        const messages = {
+            updateTimes() {
+            },
+            updateGroupSettings({id, groupdata}) {
+                let group = state.data.groups[id];
+                if(group) {groupdata.time = state.data.groups[id].time}
+                state.data.groups[id] = groupdata;
+
+                if(!state.data.group_order.includes(id)) {
+                    state.data.group_order.push(id);
                 }
-                found.newly_added = false;
+            },
+            removeGroup({id}) {
+                delete state.data.groups[id];
+                state.data.group_order = state.data.group_order.filter(x=>x!=id);
+            },
+            getData() {
+                return state.data;
             }
         }
 
-        // Activate new, count from now on
-        if(newurl) {
-            let found = group.sites.find(match(newurl));
-            if(found) {
-                ro = false;
+        let obj = messages[type](content);
+        state.update()
+        sendResponse(obj)
+    }
 
-                active = true;
-                activefrac = Math.max(activefrac, group.time / group.limit);
-                activegroups.add(groupid);
+    timePassed(extra_time) {
+        let now = this.now() + (extra_time ? extra_time : 0);
+        let time = this.last_update_time - now;
 
-                group.last_active = Date.now();
+        this._done_groups = new Set();
+
+        this.tabs.forEach(x => this.siteTimePassed(x,time));
+
+        this.last_update_time = this.now();
+
+        return this
+    }
+
+    tabTimePassed(tab, time) {
+        let matcher = match(tab);
+
+        for (gid in this.data.groups) {
+
+            if(this._done_groups.has(gid)) {
+                continue
             }
-        }
 
-        // Cyclic reset
-        if(Date.now() > group.reset_last + group.reset) {
-            ro = false;
-            group.reset_last += group.reset;
-            group.time = Math.max(0, group.time - group.limit);
+            let group = this.data.groups[gid];
+
+            for (s of group.sites.values()) {
+                if(matcher(x)) {
+                    this._done_groups.add(gid);
+                    g.time += time;
+                    break;
+                }
+            }
         }
     }
 
-    return {ro: ro, active: active, activefrac: activefrac, activegroups: activegroups};
+    reset() {
+        // TODO
+        return this
+    }
+
+    rewind(now_opt) {
+        // TODO
+        return this
+    }
 }
 
-browser.tabs.query({active: true}).then((acttabs) => {
+function tests(testlist) {
+    let a = 0
+    let b = 0
+    for( {name, test} in testlist) {
+        let passed = test() ? "[ OK ]" : "[Fail]"
 
-    // Initialize
-
-    let activeTabs = new Map();
-    for (let i of acttabs) {
-        activeTabs.set(i.id, i.url);
+        console.log(`${passed} ${name}`)
+        if(passed) {a++}
+        b++;
     }
-
-    withDataAsync(async (d) => {
-        for (let i of acttabs) {
-            changeActive(d, false, i.url)
-        }
-        updateTimes(d);
-    })
+    console.log("-----------------------------")
+    console.log(`Passed ${a}/${b}`)
+}
 
 
-    async function updateTimes(data) {
-        let ro = true;
-        let active = false;
-        let max_active = false;
-        let activefrac = 0;
-        let activegroups = new Set();
-
-        for (let k of activeTabs.keys()) {
-            let tab = await browser.tabs.get(k);
-            let info = changeActive(data, tab.url, tab.url);
-
-            if(info.active) {
-                active = true;
-                activefrac = Math.max(activefrac, info.activefrac);
-                for(let i of info.activegroups) {
-                    activegroups.add(i);
-                }
-            }
-            ro &= active.ro;
-        }
-
-        let maxfrac = 0;
-
-        for (let gid in data.groups) {
-            let g = data.groups[gid];
-
-            maxfrac = Math.max(maxfrac, g.time / g.limit);
-            max_active |= activegroups.has(gid);
-        }
-
-        updateIcon(maxfrac, max_active, activefrac, active);
-
-        return ro;
-    }
+function execute_tests() {
+    tests([
+        {name: "None", test: () => {
+            return true;
+        }},
+    ])
+}
 
 
-    function checkTabActivated(info) {
-
-        withDataAsync(async (data) => {
-            
-            let o = false;
-            if(info.previousTabId != undefined) {
-                o = await browser.tabs.get(info.previousTabId);
-            }
-            let n = await browser.tabs.get(info.tabId);
-
-            activeTabs.delete(info.previousTabId);
-            activeTabs.set(info.tabId, n.url);
-            
-            let ro = changeActive(data, o.url, n.url).ro;
-            return ro & await updateTimes(data);
-        });
-    }
-
-    function checkTabUpdated(tabId, changeInfo, tab) {
-        
-        withDataAsync(async (data) => {
-            if(changeInfo.url && activeTabs.has(tabId)) {
-                let url = changeInfo.url;
-
-                let ro = changeActive(data, activeTabs[tabId], url).ro;
-                activeTabs.set(tabId, url);
-
-                return ro & await updateTimes(data);
-            }
-        });
-    }
-
-    function checkTabMessage(message) {
-        withDataAsync(async (data) => {
-            if(message.type === "updateTimes") {
-                return await updateTimes(data);
-            }
-            else {
-                console.error(`Unknown message ${message.type}`)
-            }
-        })
-    }
-
-    browser.tabs.onActivated.addListener(checkTabActivated);
-    browser.tabs.onUpdated.addListener(checkTabUpdated);
-    browser.runtime.onMessage.addListener(checkTabMessage);
-
-    browser.tabs.onRemoved.addListener((id) => activeTabs.delete(id));
-    // TODO smarter interval
-    setInterval(() => {withDataAsync(async (d) => {return await updateTimes(d)})}, 30000);
-});
+let bgstate = new BackgroundState();

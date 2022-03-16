@@ -1,4 +1,4 @@
-import {withData, withDataAsync} from './data.js';
+import {withData} from './data.js';
 import {getPastResetDate, dayDuration, matchers} from './utils.js';
 import {cls, createText, createButton, createDiv, createTextInput, createTable, createSelect, timeText, hmsToTime} from './ui.js';
 
@@ -8,30 +8,33 @@ let time_update_targets = {};
 
 
 function listGroups() {
-    clean();
     withData((data) => {
-        let g = data.groups;
+        clean();
+        const g = data.groups;
+        const go = data.group_order;
 
         createText(table_root, "h2", {}, "Groups:");
 
         createDiv(table_root, {}, (div) => {
-            createTable(div, {}, g.length, 2, (r,l,c) => {
+            createTable(div, {}, go.length, 2, (r,l,c) => {
+                const group = data.groups[go[l]];
                 if(c===0) { // Group settings
-                    createButton(r, cls.rowmain(`${g[l].name}`), () => {listGroup(l)});
+                    createButton(r, cls.rowmain(`${group.name}`), () => {listGroup(go[l])});
                 }
                 else if(c===1) { // Time
-                    let t = createText(r, "span", cls.timestats, timeText(g[l]));
-                    time_update_targets[l] = t;
-                    return cls.time(g[l]);
+                    let t = createText(r, "span", cls.timestats, timeText(group));
+                    time_update_targets[go[l]] = t;
+                    return cls.time(group);
                 }
             });
             
             // Add new group
             createButton(div, cls.add, () => {
-                withData((d) => {
-                    addGroup(d, "New group", 60*60*1000);
-                });
-                listGroups();
+                //withData((d) => {
+                // TODO - 
+                    addGroup("New group", 60*60*1000);
+                //});
+                //listGroups();
             });
         });
     });
@@ -39,44 +42,42 @@ function listGroups() {
 
 
 
-function listGroup(n) {
-    clean();
+function listGroup(id, new_g) {
     withData((data) => {
-        let g = data.groups[n];
+        clean();
+        let g = new_g ? new_g : data.groups[id];
 
-        showGroupTopLine(g,n);
-        showGroupTimeLine(g,n);
-        showGroupOptions(g,n);
+        showGroupTopLine(g,id);
+        showGroupTimeLine(g,id);
+        showGroupOptions(g,id);
         
         createText(table_root, "h3", {}, "Sites to track:");
 
-        showGroupSites(g,n);
+        showGroupSites(g,id);
     })
 }
 
-function showGroupTopLine(g,n) {
+function showGroupTopLine(g,id) {
     createDiv(table_root, {className: "line"}, (div) => {
         // Back
         createButton(div, cls.back, () => {listGroups()});
 
         // Name
         createTextInput(div, cls.groupname(`${g.name}`), (name) => {
-            withData((d) => {
-                d.groups[n].name = name;
-            });
+            withGroup(id, g => g.name = name)
         });
     });
 }
 
-function showGroupTimeLine(g,n) {
+function showGroupTimeLine(g,id) {
     createDiv(table_root, {className: "line"}, (div) => {
 
         let timetext = createText(div, "span", cls.timetext, "Limit: ")
 
         createTextInput(div, cls.timelimit(g.limit), (lim) => {
-            withData((d) => {
-                let newlimit = hmsToTime(lim, d.groups[n].limit);
-                d.groups[n].limit = newlimit; 
+            withGroup(id, g => {
+                let newlimit = hmsToTime(lim, g.limit);
+                g.limit = newlimit; 
                 lim = newlimit;
             })
         });
@@ -84,12 +85,13 @@ function showGroupTimeLine(g,n) {
     });
 }
 
-function showGroupOptions(g,n) {
+function showGroupOptions(g,id) {
     createDiv(table_root, {className: "line"}, (div) => {
         createDiv(div, {}, (div2) => {
             // Reset time
             createButton(div2, cls.resettime, () => {
-                withData((d) => {d.groups[n].time = 0})
+                // TODO - reset
+                //withGroup(g => {g.time = 0})
             })
             // Tooltip
             createButton(div2, cls.resettime_tooltip, () => {});
@@ -97,12 +99,12 @@ function showGroupOptions(g,n) {
         })
         // Remove group
         createButton(div, cls.removegroup, () => {
-            withData((d) => {removeGroup(d, n); listGroups()})
+            removeGroup(id);
         });
     });
 }
 
-function showGroupSites(g,n) {
+function showGroupSites(g,id) {
     
     createTable(table_root, {}, g.sites.length, 3, (r,l,c) => {
         if(c===0) { // Type
@@ -110,11 +112,10 @@ function showGroupSites(g,n) {
                 g.sites[l].type, 
                 matchers.map((m) => m.name), 
                 (i) => {
-                    withData((d) => {
-                        d.groups[n].sites[l].type = i;
-                        d.groups[n].sites[l].newly_added = true;
+                    withGroup(id, g => {
+                        g.sites[l].type = i;
+                        g.sites[l].newly_added = true;
                     });
-                    listGroup(n);
             });
         }
         else if(c===1) { // Domain
@@ -125,33 +126,28 @@ function showGroupSites(g,n) {
             }
 
             createTextInput(r, uclass, (url) => {
-                withData((d) => {
-                    d.groups[n].sites[l].url = url;
+                withGroup(id, g => {
+                    g.sites[l].url = url;
                 });
-                listGroup(n);
             });
         }
         else if(c===2) { // Remove
             createButton(r, cls.remove, () => {
-                withData((d) => {
-                    removeSite(d,n,l);
-                });
-                listGroup(n);
+                withGroup(id, g => {removeSite(g,l);});
             })
         }
     });
     
     // Add new site
     createButton(table_root, cls.add, async () => {
-        let tab = await activeTab();
+        let tab = activeTab();
 
-        await withDataAsync(async (d) => {
-            let newSite = addSite(d, n, tab.url);
+        withGroup(g => {
+            let newSite = addSite(g, tab.url);
         });
 
-        browser.runtime.sendMessage({type: "updateTimes"});
-
-        listGroup(n, g.sites.length);
+        //browser.runtime.sendMessage({type: "updateTimes"});
+        //listGroup(n, g.sites.length);
     })
 }
 
@@ -164,56 +160,67 @@ function clean() {
     time_update_targets = {};
 }
 
-async function updateTimes() {
-    withDataAsync(async (data) => {
+function updateTimes() {
 
-        browser.runtime.sendMessage({type: "updateTimes"});
-
+    let sending = browser.runtime.sendMessage({type: "updateTimes"});
+    sending.then(() => {
+        withData(data => {
         for (let k in time_update_targets) {
             time_update_targets[k].innerText = timeText(data.groups[k]);
             time_update_targets[k].className = cls.time(data.groups[k]).className;
-        }
+        }});
     });
 }
 
 
 
-async function activeTab() {
-    let tab = (await browser.tabs.query({active: true, currentWindow: true}))[0];
+function activeTab() {
+    let tab = chrome.tabs.query({active: true, currentWindow: true})[0];
     let url = new URL(tab.url).hostname || "about:";
     return {url, id: tab.id};
 }
 
-function addGroup(data, name, limit) {
-    if(!data.groups) {
-        data.groups = [];
-    }
-
-    data.groups.push({
+function addGroup(name, limit) {
+    let id = Date.now();
+    let group = {
         name: name, 
+        sites: {},
+        site_order: [],
         time: 0, 
         limit: limit, 
-        reset: dayDuration,
-        reset_last: getPastResetDate(),
-        last_active: Date.now(),
-        sites: []
+    };
+    updateGroup(id, group, () => {listGroup(id, group)});
+}
+
+function withGroup(id, callback, after_opt) {
+    withData((data) => {
+        callback(data.groups[id]);
+        updateGroup(id, data.groups[id], after_opt ? after_opt : () => {listGroup(id)});
     });
 }
 
-function addSite(data, group, url) {
-    data.groups[group].sites.push({
-        type: 0, // "Hostname includes"
-        url: url, 
-        newly_added: true // required to not add time since before site entry creation
-    });
+function updateGroup(id, groupdata, callback_after) {
+    let sending = browser.runtime.sendMessage({type: "updateGroupSettings", content: {id: id, groupdata: groupdata}});
+    sending.then(() => {callback_after()})
 }
 
-function removeGroup(data, index) {
-    data.groups.splice(index, 1);
+
+function addSite(group, string) {
+    //group.sites[Date.now()] = {
+        //method: "domain_has",
+        //data: string
+    //};
+    console.log("TODO")
 }
 
-function removeSite(data, group, index) {
-    data.groups[group].sites.splice(index, 1);
+function removeGroup(id) {
+    let sending = browser.runtime.sendMessage({type: "removeGroup", content: {id: id}});
+    sending.then(listGroups)
+}
+
+function removeSite(group, id) {
+    //group.sites.remove(id);
+    console.log("TODO")
 }
 
 

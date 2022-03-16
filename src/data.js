@@ -1,58 +1,59 @@
 
-const loc = "sync"; // "local" or "sync"
+// Storage structure:
+//
+// Data:
+//  version: int = 2
+//  last_reset: int
+//  groups: {int: Group}
+//  group_order: [int]
+//
+// Group:
+//  name: String
+//  sites: {int: Site}
+//  site_order: [int]
+//  time: int
+//  limit: int
+//
+// Site:
+//  method: String
+//  data: String
+//  
+// BackgroundState:
+//  data: DataProxy
+//  last_update_time: int
+//  last_update_active: bool
+//  excluded_from_count: {String}
+//  force_count: {String}
+//
 
-async function loadData() {
-    try {
-        let storage = await browser.storage[loc].get();
-        if(storage.groups === undefined) {
-            storage.groups = [];
+const loc = "local"; // "local" or "sync"
+
+const DATA_VERSION = 2;
+
+function newData() {
+    return {
+        version: DATA_VERSION,
+        last_reset: Date.now(),
+        groups: {},
+        group_order: []
+    }
+}
+
+// TODO - "with data"
+function withData(f) {
+    let promise = browser.storage[loc].get();
+    promise.then((data) => {
+        if(data.version >= 2) {
+            f(data)
         }
-        return storage;
-    }
-    catch(err) {
-        return {groups: []}
-    }
+        else {f(newData())}
+    })
 }
 
-async function saveData(timer_data) {
-    return await browser.storage[loc].set(timer_data);
+function saveData(data) {
+    console.log("Saved", data);
+    chrome.storage[loc].set(data)
 }
 
+export {withData, saveData, newData};
 
-let data = {};
-let promise = loadData();
-
-function updateData(changes,area) {
-    data.groups = changes.groups.newValue;
-}
-
-browser.storage.onChanged.addListener(updateData);
-
-// Execute f with data. A function can return a truthy value to indicate readonly access
-async function withData(f) {
-
-    if(promise) {
-        data = await promise;
-        promise = false;
-    }
-
-    let readonly = f(data);
-    if(!readonly) {
-        await saveData(data);
-    }
-}
-
-async function withDataAsync(f) {
-
-    if(promise) {
-        data = await promise;
-        promise = false;
-    }
-
-    let readonly = await f(data);
-    if(!readonly) {
-        await saveData(data);
-    }
-}
-
-export {withData, withDataAsync};
