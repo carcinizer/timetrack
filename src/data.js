@@ -26,7 +26,7 @@
 //  force_count: {String}
 //
 
-const loc = "local"; // "local" or "sync"
+const loc = "sync"; // "local" or "sync"
 
 const DATA_VERSION = 2;
 
