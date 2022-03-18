@@ -151,14 +151,14 @@ function createSelect(root, properties, selected, options, f) {
     for (let i in options) {
         let option = document.createElement('option');
 
-        option.value = String(i);
+        option.value = i;
         option.innerText = options[i];
 
         select.append(option);
     }
 
-    select.value = String(selected);
-    select.onchange = () => {f(Number(select.value))}
+    select.value = selected;
+    select.onchange = () => {f(select.value)}
 
     for (let k in properties) {
         select[k] = properties[k];

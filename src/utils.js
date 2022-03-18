@@ -20,7 +20,7 @@ const matchers = {
                 if(entry == "about:") {
                     return true;
                 }
-                return entry.url.length > 0 && new URL(tab.url).hostname.includes(entry.url);
+                return entry.data.length > 0 && new URL(tab.url).hostname.includes(entry.data);
             }
             catch {
                 return false;
@@ -35,7 +35,7 @@ const matchers = {
                 if(entry == "about:") {
                     return true;
                 }
-                return entry.url.length > 0 && new URL(tab.url).hostname == entry.url;
+                return entry.data.length > 0 && new URL(tab.url).hostname == entry.data;
             }
             catch {
                 return false;
@@ -47,7 +47,7 @@ const matchers = {
         has_url: true,
         match(entry, tab) {
             try {
-                return entry.url.length > 0 && tab.url.includes(entry.url);
+                return entry.data.length > 0 && tab.url.includes(entry.data);
             }
             catch {
                 return false;
@@ -59,7 +59,7 @@ const matchers = {
         has_url: true,
         match(entry, tab) {
             try {
-                return entry.url.length > 0 && tab.url == entry.url;
+                return entry.data.length > 0 && tab.url == entry.data;
             }
             catch {
                 return false;
@@ -77,7 +77,7 @@ const matchers = {
 
 
 function match(tab) {
-    return (entry) => matchers[entry.type].match(entry, tab);
+    return (entry) => matchers[entry.method].match(entry, tab);
 }
 
 export {dayDuration, getPastResetDate, matchers, match};

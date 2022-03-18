@@ -161,8 +161,8 @@ class BackgroundState {
 
             let group = this.data.groups[gid];
 
-            for (s of group.sites.values()) {
-                if(matcher(x)) {
+            for (s in group.sites) {
+                if(matcher(group.sites[s])) {
                     this._done_groups.add(gid);
                     g.time += time;
                     break;

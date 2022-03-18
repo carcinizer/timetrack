@@ -30,11 +30,7 @@ function listGroups() {
             
             // Add new group
             createButton(div, cls.add, () => {
-                //withData((d) => {
-                // TODO - 
-                    addGroup("New group", 60*60*1000);
-                //});
-                //listGroups();
+                addGroup("New group", 60*60*1000);
             });
         });
     });
@@ -64,7 +60,7 @@ function showGroupTopLine(g,id) {
 
         // Name
         createTextInput(div, cls.groupname(`${g.name}`), (name) => {
-            withGroup(id, g => g.name = name)
+            withGroup(id, g => {g.name = name})
         });
     });
 }
@@ -106,48 +102,53 @@ function showGroupOptions(g,id) {
 
 function showGroupSites(g,id) {
     
-    createTable(table_root, {}, g.sites.length, 3, (r,l,c) => {
+    let matchersnames = {};
+    //let matchersmethods = [];
+    for (let m in matchers) {
+        matchersnames[m] = matchers[m].name;
+        //matchersmethods.push(m);
+    }
+
+    createTable(table_root, {}, g.site_order.length, 3, (r,l,c) => {
+
+        let sid = g.site_order[l];
+
         if(c===0) { // Type
             createSelect(r, {}, 
-                g.sites[l].type, 
-                matchers.map((m) => m.name), 
-                (i) => {
-                    withGroup(id, g => {
-                        g.sites[l].type = i;
-                        g.sites[l].newly_added = true;
-                    });
-            });
+                g.sites[sid].method, 
+                matchersnames,
+                i => {withGroup(id, g => {
+                    g.sites[sid].method = i;
+                })}
+            );
         }
         else if(c===1) { // Domain
-            let uclass = cls.rowmain(g.sites[l].url)
+            let uclass = cls.rowmain(g.sites[sid].data)
 
-            if( !matchers[g.sites[l].type].has_url ) {
+            if( !matchers[g.sites[sid].method].has_url ) {
                 uclass.disabled = true;
             }
 
             createTextInput(r, uclass, (url) => {
                 withGroup(id, g => {
-                    g.sites[l].url = url;
+                    g.sites[sid].data = url;
                 });
             });
         }
         else if(c===2) { // Remove
             createButton(r, cls.remove, () => {
-                withGroup(id, g => {removeSite(g,l);});
+                withGroup(id, g => {removeSite(g,sid);});
             })
         }
     });
     
     // Add new site
     createButton(table_root, cls.add, async () => {
-        let tab = activeTab();
-
-        withGroup(g => {
-            let newSite = addSite(g, tab.url);
+        withActiveTab(tab => {
+            withGroup(id, g => {
+                addSite(g, tab.url);
+            });
         });
-
-        //browser.runtime.sendMessage({type: "updateTimes"});
-        //listGroup(n, g.sites.length);
     })
 }
 
@@ -174,10 +175,13 @@ function updateTimes() {
 
 
 
-function activeTab() {
-    let tab = chrome.tabs.query({active: true, currentWindow: true})[0];
-    let url = new URL(tab.url).hostname || "about:";
-    return {url, id: tab.id};
+function withActiveTab(f) {
+    let promise = browser.tabs.query({active: true, currentWindow: true});
+    promise.then(tabs => {
+        let tab = tabs[0]
+        let url = new URL(tab.url).hostname || "about:";
+        f({url, id: tab.id})
+    });
 }
 
 function addGroup(name, limit) {
@@ -206,11 +210,12 @@ function updateGroup(id, groupdata, callback_after) {
 
 
 function addSite(group, string) {
-    //group.sites[Date.now()] = {
-        //method: "domain_has",
-        //data: string
-    //};
-    console.log("TODO")
+    let id = Date.now()
+    group.sites[id] = {
+        method: "domain_has",
+        data: string
+    };
+    group.site_order.push(id);
 }
 
 function removeGroup(id) {
@@ -219,8 +224,8 @@ function removeGroup(id) {
 }
 
 function removeSite(group, id) {
-    //group.sites.remove(id);
-    console.log("TODO")
+    delete group.sites[id];
+    group.site_order = group.site_order.filter(x=>x!=id);
 }
 
 
