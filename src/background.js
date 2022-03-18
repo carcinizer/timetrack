@@ -140,6 +140,9 @@ class BackgroundState {
             },
             reset({id}) {
                 state.reset(id);
+            },
+            cleanData() {
+                state.data = newData();
             }
         }
 

@@ -62,6 +62,11 @@ const cls = {
     about: {
         value: "☰",
         className: "about"
+    },
+
+    clean_data: {
+        value: "Clean data",
+        className: "removegroup"
     }
 }
 
