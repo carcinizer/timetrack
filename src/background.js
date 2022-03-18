@@ -61,15 +61,17 @@ function drawProgressCircle(timefraction, colortf, active, radius_outer, radius_
     drawSolidArc(icon_ctx, begin, end, true, radius_outer, radius_inner);
 }
 
-function updateIcon(timefraction_max, max_active, timefraction_current, active) {
+function updateIcon(timefraction_current, timefraction_max) {
 
+    let active = timefraction_current != null;
     icon_ctx.clearRect(0,0,32,32);
     
-    drawProgressCircle(timefraction_max, timefraction_max, max_active, 15, active ? 12 : 10);
+    drawProgressCircle(timefraction_max, timefraction_max, true, 15, active ? 12 : 10);
     if(active) {
         drawProgressCircle(timefraction_current, timefraction_max, true, 7, 10);
     }
 
+    console.log("Icon: ", timefraction_current, timefraction_max)
     browser.browserAction.setIcon({imageData: icon_ctx.getImageData(0,0,32,32)});
 }
 
@@ -79,7 +81,7 @@ class BackgroundState {
         withData(d => {this.data = test ? newData() : d})
         this.now = test ? () => 0 : Date.now;
 
-        this.saveData = test ? () => {} : () => {saveData(this.data)}
+        this.saveData = test ? () => {return this} : () => {saveData(this.data); return this}
 
         this.last_update_time = this.now();
         this.last_update_active = false;
@@ -96,18 +98,22 @@ class BackgroundState {
         console.log("Constructed: ", this)
     }
 
-    updateTabs() {
+    updateTabs(callback_after_opt) {
+        let callback_after = callback_after_opt ? callback_after_opt : () => {};
         let promise = browser.tabs.query({active: true});
-        promise.then(x => {this.tabs = new Set(x)});
-        console.log("tabs: ", this.tabs)
+        promise.then(x => {this.tabs = new Set(x); callback_after()});
         return this
     }
 
     update() {
-        return this.timePassed()
-            .updateTabs()
-            .rewind()
-            .saveData();
+        return this
+            .timePassed()
+            .updateTabs(() => {
+                this.rewind()
+                .timePassed() // Once again to get max time fractions for currently active tabs
+                .saveData()
+                .updateIcon();
+            })
     }
 
     onMessage({type, content}, sender, sendResponse) {
@@ -147,6 +153,7 @@ class BackgroundState {
         let time = now - this.last_update_time;
 
         this._done_groups = new Set();
+        this.max_timefrac_active = null;
 
         this.tabs.forEach(x => this.tabTimePassed(x,time));
 
@@ -170,6 +177,8 @@ class BackgroundState {
                 if(matcher(group.sites[s])) {
                     this._done_groups.add(gid);
                     group.time += time;
+
+                    this.max_timefrac_active = Math.max(this.max_timefrac_active, group.time / group.limit);
                     break;
                 }
             }
@@ -189,6 +198,17 @@ class BackgroundState {
             }
             this.data.last_reset = getPastResetDate();
         }
+        return this
+    }
+
+    updateIcon() {
+        this.max_timefrac = 0;
+        for(let gid in this.data.groups) {
+            const group = this.data.groups[gid];
+            this.max_timefrac = Math.max(this.max_timefrac, group.time / group.limit);
+        }
+
+        updateIcon(this.max_timefrac_active, this.max_timefrac);
         return this
     }
 }
