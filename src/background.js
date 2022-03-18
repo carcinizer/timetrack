@@ -131,6 +131,9 @@ class BackgroundState {
             },
             getData() {
                 return state.data;
+            },
+            reset({id}) {
+                state.reset(id);
             }
         }
 
@@ -173,8 +176,8 @@ class BackgroundState {
         }
     }
 
-    reset() {
-        // TODO
+    reset(gid) {
+        this.data.groups[gid].time = 0;
         return this
     }
 

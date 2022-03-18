@@ -86,8 +86,7 @@ function showGroupOptions(g,id) {
         createDiv(div, {}, (div2) => {
             // Reset time
             createButton(div2, cls.resettime, () => {
-                // TODO - reset
-                //withGroup(g => {g.time = 0})
+                browser.runtime.sendMessage({type: "reset", content: {id: id}});
             })
             // Tooltip
             createButton(div2, cls.resettime_tooltip, () => {});
