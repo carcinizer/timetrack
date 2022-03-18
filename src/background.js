@@ -1,5 +1,5 @@
 import {withData, saveData, newData} from './data.js';
-import {getPastResetDate, match} from './utils.js';
+import {getPastResetDate, dayDuration, match} from './utils.js';
 
 // Icon
 
@@ -178,8 +178,14 @@ class BackgroundState {
         return this
     }
 
-    rewind(now_opt) {
-        // TODO
+    rewind() {
+        if(this.data.last_reset + dayDuration < new Date(this.now())) {
+            for(let gid in this.data.groups) {
+                const group = this.data.groups[gid];
+                group.time = Math.max(0, group.time - group.limit)
+            }
+            this.data.last_reset = getPastResetDate();
+        }
         return this
     }
 }
