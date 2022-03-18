@@ -97,7 +97,9 @@ class BackgroundState {
     }
 
     updateTabs() {
-        this.tabs = new Set(chrome.tabs.query({active: true}));
+        let promise = browser.tabs.query({active: true});
+        promise.then(x => {this.tabs = new Set(x)});
+        console.log("tabs: ", this.tabs)
         return this
     }
 
@@ -139,11 +141,11 @@ class BackgroundState {
 
     timePassed(extra_time) {
         let now = this.now() + (extra_time ? extra_time : 0);
-        let time = this.last_update_time - now;
+        let time = now - this.last_update_time;
 
         this._done_groups = new Set();
 
-        this.tabs.forEach(x => this.siteTimePassed(x,time));
+        this.tabs.forEach(x => this.tabTimePassed(x,time));
 
         this.last_update_time = this.now();
 
@@ -153,7 +155,7 @@ class BackgroundState {
     tabTimePassed(tab, time) {
         let matcher = match(tab);
 
-        for (gid in this.data.groups) {
+        for (let gid in this.data.groups) {
 
             if(this._done_groups.has(gid)) {
                 continue
@@ -161,10 +163,10 @@ class BackgroundState {
 
             let group = this.data.groups[gid];
 
-            for (s in group.sites) {
+            for (let s in group.sites) {
                 if(matcher(group.sites[s])) {
                     this._done_groups.add(gid);
-                    g.time += time;
+                    group.time += time;
                     break;
                 }
             }

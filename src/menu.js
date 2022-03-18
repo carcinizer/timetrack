@@ -103,10 +103,8 @@ function showGroupOptions(g,id) {
 function showGroupSites(g,id) {
     
     let matchersnames = {};
-    //let matchersmethods = [];
     for (let m in matchers) {
         matchersnames[m] = matchers[m].name;
-        //matchersmethods.push(m);
     }
 
     createTable(table_root, {}, g.site_order.length, 3, (r,l,c) => {
