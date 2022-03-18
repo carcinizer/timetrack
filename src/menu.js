@@ -14,6 +14,7 @@ function listGroups() {
         const go = data.group_order;
 
         createText(table_root, "h2", {}, "Groups:");
+        createButton(table_root, cls.about, aboutPage)
 
         createDiv(table_root, {}, (div) => {
             createTable(div, {}, go.length, 2, (r,l,c) => {
@@ -53,10 +54,20 @@ function listGroup(id, new_g) {
     })
 }
 
+function aboutPage() {
+    clean();
+    let manifest = browser.runtime.getManifest();
+
+    createButton(table_root, cls.back, listGroups);
+
+    createText(table_root, "h1", {}, `${manifest.name}`);
+    createText(table_root, "h3", {}, `Version ${manifest.version}`);
+}
+
 function showGroupTopLine(g,id) {
     createDiv(table_root, {className: "line"}, (div) => {
         // Back
-        createButton(div, cls.back, () => {listGroups()});
+        createButton(div, cls.back, listGroups);
 
         // Name
         createTextInput(div, cls.groupname(`${g.name}`), (name) => {
