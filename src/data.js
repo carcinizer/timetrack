@@ -43,10 +43,7 @@ function newData() {
 function withData(f) {
     let promise = browser.storage[loc].get();
     promise.then((data) => {
-        if(data.version >= 2) {
-            f(data)
-        }
-        else {f(newData())}
+        f(adaptData(data, true))
     })
 }
 
@@ -55,5 +52,22 @@ function saveData(data) {
     chrome.storage[loc].set(data)
 }
 
-export {withData, saveData, newData};
+function adaptData(data, noexceptions) {
+    if(noexceptions) {
+        try {
+            return adaptData(data);
+        } 
+        catch(x) {
+            return newData();
+        }
+    }
+    else {
+        if(data.version != DATA_VERSION) {
+            throw new Error(`Incompatible versions, expected version 2, got ${data.version}`);
+        }
+        return data;
+    }
+}
+
+export {withData, saveData, newData, adaptData};
 

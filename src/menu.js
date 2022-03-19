@@ -63,6 +63,15 @@ function aboutPage() {
     createText(table_root, "h1", {}, `${manifest.name}`);
     createText(table_root, "h3", {}, `Version ${manifest.version}`);
 
+    createButton(table_root, {value: "Import data..."}, () => {
+        browser.windows.create({
+            type: "detached_panel",
+            url: "/src/import.html",
+            width: 350,
+            height: 250
+        })
+    })
+
     createButton(table_root, {value: "Export data..."}, () => {
         browser.permissions.request({permissions: ["downloads"]})
             .then(granted => {if(granted) {

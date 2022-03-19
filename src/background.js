@@ -1,4 +1,4 @@
-import {withData, saveData, newData} from './data.js';
+import {withData, saveData, newData, adaptData} from './data.js';
 import {getPastResetDate, dayDuration, match} from './utils.js';
 
 // Icon
@@ -154,6 +154,9 @@ class BackgroundState {
                     filename: "timetrack_config.json",
                     saveAs: true
                 });
+            },
+            import({data}) {
+                state.data = adaptData(data);
             }
         }
 
