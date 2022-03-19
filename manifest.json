@@ -11,6 +11,10 @@
     "tabs"
   ],
 
+  "optional_permissions": [
+    "downloads"
+  ],
+
   "browser_specific_settings": {
     "gecko": {
       "id": "timetrack@carcinizer",

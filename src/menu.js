@@ -63,6 +63,13 @@ function aboutPage() {
     createText(table_root, "h1", {}, `${manifest.name}`);
     createText(table_root, "h3", {}, `Version ${manifest.version}`);
 
+    createButton(table_root, {value: "Export data..."}, () => {
+        browser.permissions.request({permissions: ["downloads"]})
+            .then(granted => {if(granted) {
+                browser.runtime.sendMessage({type: "export", content: {}});
+            }})
+    })
+
     createButton(table_root, cls.clean_data, () => {
         let sending = browser.runtime.sendMessage({type: "cleanData", content: {}});
         sending.then(() => {listGroups()});

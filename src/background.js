@@ -143,6 +143,17 @@ class BackgroundState {
             },
             cleanData() {
                 state.data = newData();
+            },
+            export() {
+                let objecturl = URL.createObjectURL(
+                    new Blob([JSON.stringify(state.data, null, 4)]),
+                    {type: "application/json"});
+
+                browser.downloads.download({
+                    url: objecturl,
+                    filename: "timetrack_config.json",
+                    saveAs: true
+                });
             }
         }
 
