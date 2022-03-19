@@ -116,3 +116,9 @@ input:disabled, select:disabled {
     top: 10px;
     right: 10px;
 }
+
+.aboutlinks {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+

@@ -62,6 +62,10 @@ function aboutPage() {
 
     createText(table_root, "h1", {}, `${manifest.name}`);
     createText(table_root, "h3", {}, `Version ${manifest.version}`);
+    
+    createDiv(table_root, {className: "aboutlinks"}, div => {
+        createText(div, "a", {href: "https://github.com/carcinizer/timetrack"}, "GitHub link")
+    })
 
     createButton(table_root, {value: "Import data..."}, () => {
         browser.windows.create({
