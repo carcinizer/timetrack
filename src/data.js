@@ -48,7 +48,6 @@ function withData(f) {
 }
 
 function saveData(data) {
-    console.log("Saved", data);
     chrome.storage[loc].set(data)
 }
 

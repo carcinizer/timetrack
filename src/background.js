@@ -71,7 +71,6 @@ function updateIcon(timefraction_current, timefraction_max) {
         drawProgressCircle(timefraction_current, timefraction_max, true, 7, 10);
     }
 
-    console.log("Icon: ", timefraction_current, timefraction_max)
     browser.browserAction.setIcon({imageData: icon_ctx.getImageData(0,0,32,32)});
 }
 
@@ -99,8 +98,6 @@ class BackgroundState {
         chrome.tabs.onRemoved.addListener(() => {this.update()})
         chrome.runtime.onMessage.addListener((msg,s,sr) => {this.onMessage(msg,s,sr)})
         setInterval(() => {this.update()}, 30000);
-
-        console.log("Constructed: ", this)
     }
 
     updateTabs(callback_after_opt) {
@@ -123,7 +120,6 @@ class BackgroundState {
 
     onMessage({type, content}, sender, sendResponse) {
         let state = this;
-        console.log("Got", type, content)
         const messages = {
             updateTimes() {
             },
