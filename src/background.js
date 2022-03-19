@@ -78,7 +78,7 @@ function updateIcon(timefraction_current, timefraction_max) {
 
 class BackgroundState {
     constructor(test) {
-        withData(d => {this.data = test ? newData() : d})
+
         this.now = test ? () => 0 : Date.now;
 
         this.saveData = test ? () => {return this} : () => {saveData(this.data); return this}
@@ -86,6 +86,11 @@ class BackgroundState {
         this.last_update_time = this.now();
         this.last_update_active = false;
         this.updateTabs();
+
+        withData(d => {
+            this.data = test ? newData() : d; 
+            this.update();
+        })
 
         // Event hooks
         // TODO - cleanup?
