@@ -8,7 +8,7 @@ function getPastResetDate() {
         d = new Date(d - dayDuration);
     }
     d.setHours(resetHour, 0, 0);
-    return d;
+    return d.getTime();
 }
 
 const matchers = {

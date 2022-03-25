@@ -142,6 +142,9 @@ class BackgroundState {
             reset({id}) {
                 state.reset(id);
             },
+            rewind() {
+                state.rewind(true);
+            },
             cleanData() {
                 state.data = newData();
             },
@@ -208,8 +211,8 @@ class BackgroundState {
         return this
     }
 
-    rewind() {
-        if(this.data.last_reset + dayDuration < new Date(this.now())) {
+    rewind(force) {
+        if(force || typeof this.data.last_reset != "number" || this.data.last_reset + dayDuration < new Date(this.now())) {
             for(let gid in this.data.groups) {
                 const group = this.data.groups[gid];
                 group.time = Math.max(0, group.time - group.limit)
