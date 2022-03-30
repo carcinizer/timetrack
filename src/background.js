@@ -22,8 +22,11 @@ const gradient_warn_bg = createRadialGradient(icon_ctx, '#757b47', '#646840');
 const gradient_expired_fg = createRadialGradient(icon_ctx, '#ef4334', '#d44434');
 const gradient_expired_bg = createRadialGradient(icon_ctx, '#833f38', '#76322c');
 
-function getGradient(frac, active) {
-    if(frac > 1.0) {
+function getGradient(frac, paused) {
+    if(paused) {
+        return {fg: gradient_inactive_fg, bg: gradient_inactive_bg}
+    }
+    else if(frac > 1.0) {
         return {fg: gradient_expired_fg, bg: gradient_expired_bg}
     }
     else if(frac > 0.9) {
@@ -43,7 +46,7 @@ function drawSolidArc(ctx, begin, end, counterclockwise, radius_outer, radius_in
     ctx.fill();
 }
 
-function drawProgressCircle(timefraction, colortf, active, radius_outer, radius_inner) {
+function drawProgressCircle(timefraction, colortf, paused, radius_outer, radius_inner) {
 
     // clamp fractions for correct rendering
     let tf = timefraction;
@@ -53,7 +56,7 @@ function drawProgressCircle(timefraction, colortf, active, radius_outer, radius_
     let begin = 3/2 * Math.PI;
     let end = (3/2 + 2*tf) * Math.PI;
 
-    let gradients = getGradient(colortf, active);
+    let gradients = getGradient(colortf, paused);
 
     icon_ctx.fillStyle = gradients.fg;
     drawSolidArc(icon_ctx, begin, end, false, radius_outer, radius_inner);
@@ -61,14 +64,14 @@ function drawProgressCircle(timefraction, colortf, active, radius_outer, radius_
     drawSolidArc(icon_ctx, begin, end, true, radius_outer, radius_inner);
 }
 
-function updateIcon(timefraction_current, timefraction_max) {
+function updateIcon(timefraction_current, timefraction_max, paused) {
 
-    let active = timefraction_current != null;
+    let active = timefraction_current != null && !paused;
     icon_ctx.clearRect(0,0,32,32);
     
-    drawProgressCircle(timefraction_max, timefraction_max, true, 15, active ? 12 : 10);
+    drawProgressCircle(timefraction_max, timefraction_max, paused, 15, active ? 12 : 10);
     if(active) {
-        drawProgressCircle(timefraction_current, timefraction_max, true, 7, 10);
+        drawProgressCircle(timefraction_current, timefraction_max, paused, 7, 10);
     }
 
     browser.browserAction.setIcon({imageData: icon_ctx.getImageData(0,0,32,32)});
@@ -81,6 +84,7 @@ class BackgroundState {
         this.now = test ? () => 0 : Date.now;
 
         this.saveData = test ? () => {return this} : () => {saveData(this.data); return this}
+        //this.data.paused = false;
 
         this.last_update_time = this.now();
         this.last_update_active = false;
@@ -148,6 +152,9 @@ class BackgroundState {
             cleanData() {
                 state.data = newData();
             },
+            switchPause() {
+                state.data.paused = !state.data.paused;
+            },
             export() {
                 let objecturl = URL.createObjectURL(
                     new Blob([JSON.stringify(state.data, null, 4)]),
@@ -197,7 +204,9 @@ class BackgroundState {
             for (let s in group.sites) {
                 if(matcher(group.sites[s])) {
                     this._done_groups.add(gid);
-                    group.time += time;
+                    if(!this.data.paused) {
+                        group.time += time;
+                    }
 
                     this.max_timefrac_active = Math.max(this.max_timefrac_active, group.time / group.limit);
                     break;
@@ -229,7 +238,7 @@ class BackgroundState {
             this.max_timefrac = Math.max(this.max_timefrac, group.time / group.limit);
         }
 
-        updateIcon(this.max_timefrac_active, this.max_timefrac);
+        updateIcon(this.max_timefrac_active, this.max_timefrac, this.data.paused);
         return this
     }
 }

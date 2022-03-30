@@ -28,14 +28,15 @@
 
 const loc = "sync"; // "local" or "sync"
 
-const DATA_VERSION = 2;
+const DATA_VERSION = 3;
 
 function newData() {
     return {
         version: DATA_VERSION,
         last_reset: Date.now(),
         groups: {},
-        group_order: []
+        group_order: [],
+        paused: false
     }
 }
 
@@ -61,9 +62,18 @@ function adaptData(data, noexceptions) {
         }
     }
     else {
-        if(data.version != DATA_VERSION) {
-            throw new Error(`Incompatible versions, expected version 2, got ${data.version}`);
+        if(data.version > DATA_VERSION || data.version < 2) {
+            throw new Error(`Incompatible versions, expected versions between 2 to ${DATA_VERSION}, got ${data.version}`);
         }
+
+        let newdata = newData();
+        for (let k in newdata) {
+            if(!(k in data)) {
+                data[k] = newdata[k];
+            }
+        }
+        data.version = DATA_VERSION;
+
         return data;
     }
 }

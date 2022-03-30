@@ -15,6 +15,10 @@ function listGroups() {
 
         createText(table_root, "h2", {}, "Groups:");
         createButton(table_root, cls.about, aboutPage)
+        createButton(table_root, cls.pause(data.paused), () => {
+            browser.runtime.sendMessage({type: "switchPause", content: {}})
+                .then(listGroups);
+        });
 
         createDiv(table_root, {}, (div) => {
             createTable(div, {}, go.length, 2, (r,l,c) => {

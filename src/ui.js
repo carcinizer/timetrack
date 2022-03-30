@@ -67,7 +67,13 @@ const cls = {
     clean_data: {
         value: "Clean data",
         className: "removegroup"
-    }
+    },
+
+    pause: (status) => {
+        return {
+            value: status ? "Resume" : "Pause" ,
+            className: "pause"
+    }}
 }
 
 // Create text with a given tag
