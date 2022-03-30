@@ -2,10 +2,11 @@
 // Storage structure:
 //
 // Data:
-//  version: int = 2
+//  version: int = 3
 //  last_reset: int
 //  groups: {int: Group}
 //  group_order: [int]
+//  paused: bool
 //
 // Group:
 //  name: String
