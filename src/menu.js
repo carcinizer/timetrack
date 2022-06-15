@@ -1,6 +1,6 @@
-import {withData} from './data.js';
+import {withData, newGroup} from './data.js';
 import {getPastResetDate, dayDuration, matchers} from './utils.js';
-import {cls, createText, createButton, createDiv, createTextInput, createTable, createSelect, timeText, hmsToTime} from './ui.js';
+import {cls, createText, createButton, createDiv, createTextInput, createTable, createSelect, createCheckbox, timeText, hmsToTime} from './ui.js';
 
 
 let table_root = document.getElementById("table_root");
@@ -35,7 +35,7 @@ function listGroups() {
             
             // Add new group
             createButton(div, cls.add, () => {
-                addGroup("New group", 60*60*1000);
+                addGroup();
             });
         });
     });
@@ -137,6 +137,13 @@ function showGroupOptions(g,id) {
             removeGroup(id);
         });
     });
+    //createDiv(table_root, {className: "line"}, (div) => {
+        createCheckbox(table_root, "Block after timeout", {checked: g.block_after_timeout}, 
+            (state) => {withGroup(id, g => {
+                console.log(g,state);
+                g.block_after_timeout = state;
+        })});
+    //});
 }
 
 function showGroupSites(g,id) {
@@ -221,15 +228,9 @@ function withActiveTab(f) {
     });
 }
 
-function addGroup(name, limit) {
+function addGroup() {
     let id = Date.now();
-    let group = {
-        name: name, 
-        sites: {},
-        site_order: [],
-        time: 0, 
-        limit: limit, 
-    };
+    let group = newGroup();
     updateGroup(id, group, () => {listGroup(id, group)});
 }
 

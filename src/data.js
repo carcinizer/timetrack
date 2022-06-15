@@ -2,7 +2,7 @@
 // Storage structure:
 //
 // Data:
-//  version: int = 3
+//  version: int = DATA_VERSION
 //  last_reset: int
 //  groups: {int: Group}
 //  group_order: [int]
@@ -14,6 +14,7 @@
 //  site_order: [int]
 //  time: int
 //  limit: int
+//  block_on_timeout: bool
 //
 // Site:
 //  method: String
@@ -29,7 +30,18 @@
 
 const loc = "sync"; // "local" or "sync"
 
-const DATA_VERSION = 3;
+const DATA_VERSION = 4;
+
+function newGroup() {
+    return {
+        name: "New Group", 
+        sites: {},
+        site_order: [],
+        time: 0, 
+        limit: 60*60*1000, 
+        block_on_timeout: false
+    }
+}
 
 function newData() {
     return {
@@ -67,17 +79,31 @@ function adaptData(data, noexceptions) {
             throw new Error(`Incompatible versions, expected versions between 2 to ${DATA_VERSION}, got ${data.version}`);
         }
 
+        if(data.version == DATA_VERSION) {
+            return data;
+        }
+
         let newdata = newData();
         for (let k in newdata) {
             if(!(k in data)) {
                 data[k] = newdata[k];
             }
         }
+
+        let newgroup = newGroup();
+        for (let k in newgroup) {
+            for (let group of data.groups) {
+                if(!(k in group)) {
+                    group[k] = newgroup[k];
+                }
+            }
+        }
+
         data.version = DATA_VERSION;
 
         return data;
     }
 }
 
-export {withData, saveData, newData, adaptData};
+export {withData, saveData, newData, newGroup, adaptData};
 

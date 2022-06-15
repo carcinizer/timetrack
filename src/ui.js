@@ -104,6 +104,26 @@ function createButton(root, properties, f) {
     return node;
 }
 
+function createCheckbox(root, labeltext, properties, f) {
+
+    let label = document.createElement('label');
+
+    let node = document.createElement('input');
+    node.type = "checkbox";
+    node.onchange = () => f(node.checked);
+
+    label.append(node);
+    createText(label, 'span', {}, labeltext);
+
+    root.append(label);
+
+    for (let k in properties) {
+        node[k] = properties[k];
+    }
+
+    return label;
+}
+
 // Create text input. The f(value) function should return a parsed value
 function createTextInput(root, properties, f) {
     
@@ -208,4 +228,4 @@ function timeText(group) {
     return `${timeToHms(group.time)}/${timeToHms(group.limit)}`;
 }
 
-export {cls, createText, createButton, createDiv, createTextInput, createTable, createSelect, timeText, timeToHms, hmsToTime};
+export {cls, createText, createButton, createDiv, createTextInput, createTable, createSelect, createCheckbox, timeText, timeToHms, hmsToTime};

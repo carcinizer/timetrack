@@ -32,6 +32,9 @@ input:disabled, select:disabled {
     color: #4B4A53;
 }
 
+input[type=checkbox] {
+}
+
 .line, tr {
     display: flex;
     align-items: center;
