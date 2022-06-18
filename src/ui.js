@@ -53,11 +53,11 @@ const cls = {
         className: "resettime"
     },
 
-    resettime_tooltip: {
+    tooltip: title => {return {
         value: "?",
-        title: "Automatic reset occurs every day on 4:00 AM, by subtracting the limit from total time.",
-        className: "resettime-tooltip"
-    },
+        title: title,
+        className: "tooltip"
+    }},
 
     about: {
         value: "☰",

@@ -4,10 +4,14 @@ import {cls, createText, createButton, createDiv, createTextInput, createTable, 
 
 
 let table_root = document.getElementById("table_root");
+let warning = document.getElementById("warning");
 let time_update_targets = {};
 
 
 function listGroups() {
+
+    updateWarning();
+
     withData((data) => {
         clean();
         const g = data.groups;
@@ -44,6 +48,9 @@ function listGroups() {
 
 
 function listGroup(id, new_g) {
+
+    updateWarning();
+
     withData((data) => {
         clean();
         let g = new_g ? new_g : data.groups[id];
@@ -129,7 +136,7 @@ function showGroupOptions(g,id) {
                 browser.runtime.sendMessage({type: "reset", content: {id: id}});
             })
             // Tooltip
-            createButton(div2, cls.resettime_tooltip, () => {});
+            createButton(div2, cls.tooltip("Automatic reset occurs every day on 4:00 AM, by subtracting the limit from total time."), () => {});
             
         })
         // Remove group
@@ -265,6 +272,56 @@ function removeSite(group, id) {
     delete group.sites[id];
     group.site_order = group.site_order.filter(x=>x!=id);
 }
+
+async function checkPermissions(data, {wantToExport, humanReadable}) {
+    let reason = [];
+    let cont = {permissions: []};
+
+    let url_perm = await browser.permissions.contains({origins: ["<all_urls>"]});
+
+    if(!url_perm) {
+        for(let gid of data.group_order) {
+            const group = data.groups[gid];
+            if(group.block_after_timeout) {
+                reason.push(`Group '${group.name}' requires site access permissions in order to display a time-out pop-up`);
+                cont.origins = ["<all_urls>"];
+            }
+        }
+    };
+
+    if(wantToExport && !(await browser.permissions.contains({permissions: ["downloads"]}))) {
+        reason.push("Exporting requires downloads access permissions");
+        cont.permissions.push("downloads");
+    }
+
+    return humanReadable ? reason.join('\n') : cont;
+}
+
+function updateWarning() {
+    while(warning.firstChild) {
+        warning.removeChild(warning.lastChild);
+    }
+    warning.hidden = true;
+
+    withData(data => {
+        checkPermissions(data, {humanReadable: true}).then(reason => {
+            if(reason != "") {
+                createText(warning, 'span', {}, "⚠️ Permissions ");
+                createButton(warning, cls.tooltip(`Permissions required: ${reason}`), () => {})
+
+                checkPermissions(data, {}).then(perms => {
+
+                    createButton(warning, {value: "Grant"}, () => {
+                        browser.permissions.request(perms);
+                    })
+
+                });
+                warning.hidden = false;
+            }
+        })
+    })
+}
+
 
 
 listGroups();

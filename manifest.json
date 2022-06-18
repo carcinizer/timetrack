@@ -12,7 +12,8 @@
   ],
 
   "optional_permissions": [
-    "downloads"
+    "downloads",
+    "<all_urls>"
   ],
 
   "browser_specific_settings": {
