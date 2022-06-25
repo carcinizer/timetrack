@@ -89,6 +89,7 @@ class BackgroundState {
         this.last_update_time = this.now();
         this.last_update_active = false;
         this.updateTabs();
+        this.content_script_tabs = new Set();
 
         withData(d => {
             this.data = test ? newData() : d; 
@@ -207,6 +208,22 @@ class BackgroundState {
                     if(!this.data.paused) {
                         group.time += time;
                     }
+                    
+                    if(group.time > group.limit && group.block_after_timeout && !this.content_script_tabs.has(tab.id)) {
+
+                        this.content_script_tabs.add(tab.id);
+
+                        browser.tabs.insertCSS(tab.id, {file: "/src/timeout.css"})
+                        browser.tabs.executeScript(tab.id, {file: "/src/timeout.js"})
+                        let port = browser.tabs.connect(tab.id);
+                        
+                        function moreTime(x) {
+                            // TODO what about refreshing?
+                        }
+
+                        port.onMessage.addListener(moreTime);
+                        port.onDisconnect.addListener(() => {this.content_script_tabs.remove(tab.id)});
+                    }
 
                     this.max_timefrac_active = Math.max(this.max_timefrac_active, group.time / group.limit);
                     break;
@@ -240,6 +257,16 @@ class BackgroundState {
 
         updateIcon(this.max_timefrac_active, this.max_timefrac, this.data.paused);
         return this
+    }
+
+    blockTab(tab) {
+        browser.permissions.contains({origins: ["<all_urls>"]}).then(perm => {if(perm) {
+            browser.contentScripts.register({
+                matches: [tab.url],
+                js: [{file: "/src/timeout.js"}],
+                css: [{file: "/src/timeout.css"}]
+            })
+        }})
     }
 }
 

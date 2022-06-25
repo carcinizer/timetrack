@@ -144,13 +144,11 @@ function showGroupOptions(g,id) {
             removeGroup(id);
         });
     });
-    //createDiv(table_root, {className: "line"}, (div) => {
-        createCheckbox(table_root, "Block after timeout", {checked: g.block_after_timeout}, 
-            (state) => {withGroup(id, g => {
-                console.log(g,state);
-                g.block_after_timeout = state;
-        })});
-    //});
+
+    createCheckbox(table_root, "Block after timeout", {checked: g.block_after_timeout}, 
+        (state) => {withGroup(id, g => {
+            g.block_after_timeout = state;
+    })});
 }
 
 function showGroupSites(g,id) {

@@ -1,0 +1,48 @@
+
+.timetrack-timeout-blocker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #2B2A33DD;
+    z-index: 99999999;
+
+}
+
+.timetrack-timeout-content-root {
+
+}
+
+.timetrack-timeout-content {
+    color: white;
+    opacity: 1.0;
+    font-size: 80px;
+}
+
+#timetrack-timeout-more {
+    background-color: #2B2A33;
+    color: white;
+    font-size: 20px;
+
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 6px;
+    border-color: #4B4A53;
+    margin: 2px;
+}
+
+#timetrack-timeout-more:hover {
+    background: #3B3A43;
+}
+
+#timetrack-timeout-more:hover:active {
+    background: #1B1A23;
+}
+
