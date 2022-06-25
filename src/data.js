@@ -13,6 +13,7 @@
 //  sites: {int: Site}
 //  site_order: [int]
 //  time: int
+//  extra_time: int
 //  limit: int
 //  block_on_timeout: bool
 //
@@ -30,7 +31,7 @@
 
 const loc = "sync"; // "local" or "sync"
 
-const DATA_VERSION = 4;
+const DATA_VERSION = 5;
 
 function newGroup() {
     return {
@@ -38,6 +39,7 @@ function newGroup() {
         sites: {},
         site_order: [],
         time: 0, 
+        extra_time: 0,
         limit: 60*60*1000, 
         block_on_timeout: false
     }

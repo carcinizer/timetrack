@@ -1,10 +1,8 @@
 
-
 let overflow = document.body.style.overflow;
 
 let blocker = document.createElement('div')
 blocker.className = "timetrack-timeout-blocker"
-
 
 let h = document.createElement('h1');
 h.innerText = "Time's up";
@@ -22,15 +20,25 @@ function block() {
     blocker.hidden = false;
 }
 
-function unblock() {
+function unblock(send) {
     document.body.style.overflow = overflow;
     blocker.hidden = true;
-    // TODO - 5 more minutes
+    if(send) {
+        browser.runtime.sendMessage({
+            type: "moreTime", 
+            content: {amount: 5*60*1000}
+        });
+    }
 }
 
+
 blocker.append(h);
-//blocker.append(button);
+blocker.append(button);
 document.body.appendChild(blocker)
-document.getElementById('timetrack-timeout-more').onclick = unblock
+document.getElementById('timetrack-timeout-more').onclick = () => {unblock(true)}
 
 block();
+
+browser.runtime.onMessage.addListener(({should_be_blocked}) => {
+    if(should_be_blocked) {block()} else {unblock(false)}
+})

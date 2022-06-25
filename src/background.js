@@ -106,7 +106,6 @@ class BackgroundState {
         this.last_update_time = this.now();
         this.last_update_active = false;
         this.updateTabs();
-        this.content_script_tabs = new Set();
 
         withData(d => {
             this.data = test ? newData() : d; 
@@ -186,6 +185,11 @@ class BackgroundState {
             },
             import({data}) {
                 state.data = adaptData(data);
+            },
+            moreTime({amount}) {
+                for(let gid of getAssociatedGroupIDs(sender.tab, state.data)) {
+                    state.data.groups[gid].extra_time += amount;
+                }
             }
         }
 
@@ -227,22 +231,20 @@ class BackgroundState {
         }
     }
 
-    refreshContentScript(tab, group) {
+    async refreshContentScript(tab, group) {
 
-        if(group.time > group.limit && group.block_after_timeout && !this.content_script_tabs.has(tab.id)) {
+        if(group.block_after_timeout && await browser.permissions.contains({origins: ["<all_urls>"]})) {
 
-            this.content_script_tabs.add(tab.id);
+            let timeout = group.time > group.limit + group.extra_time;
 
-            browser.tabs.insertCSS(tab.id, {file: "/src/timeout.css"})
-            browser.tabs.executeScript(tab.id, {file: "/src/timeout.js"})
-            let port = browser.tabs.connect(tab.id);
-            
-            function moreTime(x) {
-                // TODO what about refreshing?
-            }
-
-            port.onMessage.addListener(moreTime);
-            port.onDisconnect.addListener(() => {this.content_script_tabs.remove(tab.id)});
+            // Check if content script exists for a given tab 
+            try {await browser.tabs.sendMessage(tab.id, {should_be_blocked: timeout})}
+            catch {  // Create it if doesn't exist and there's a timeout
+                if(timeout) {
+                    await browser.tabs.insertCSS(tab.id, {file: "/src/timeout.css"})
+                    await browser.tabs.executeScript(tab.id, {file: "/src/timeout.js"})
+                }
+            };
         }
     }
 
