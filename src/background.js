@@ -77,6 +77,23 @@ function updateIcon(timefraction_current, timefraction_max, paused) {
     browser.browserAction.setIcon({imageData: icon_ctx.getImageData(0,0,32,32)});
 }
 
+function* getAssociatedGroupIDs(tab, data) {
+
+    const matcher = match(tab);
+
+    for (let gid in data.groups) {
+        const group = data.groups[gid];
+        console.log(gid);
+
+        for (let s in group.sites) {
+            if(matcher(group.sites[s])) {
+                yield gid;
+                break;
+            }
+        }
+    }
+}
+
 
 class BackgroundState {
     constructor(test) {
@@ -194,46 +211,44 @@ class BackgroundState {
     tabTimePassed(tab, time) {
         let matcher = match(tab);
 
-        for (let gid in this.data.groups) {
+        for (let gid of getAssociatedGroupIDs(tab, this.data)) {
+            const group = this.data.groups[gid];
 
-            if(this._done_groups.has(gid)) {
-                continue
+            if(this._done_groups.has(gid)) {continue}
+            this._done_groups.add(gid);
+
+            if(!this.data.paused) {
+                group.time += time;
+            }
+            
+            this.refreshContentScript(tab, group);
+
+            this.max_timefrac_active = Math.max(this.max_timefrac_active, group.time / group.limit);
+        }
+    }
+
+    refreshContentScript(tab, group) {
+
+        if(group.time > group.limit && group.block_after_timeout && !this.content_script_tabs.has(tab.id)) {
+
+            this.content_script_tabs.add(tab.id);
+
+            browser.tabs.insertCSS(tab.id, {file: "/src/timeout.css"})
+            browser.tabs.executeScript(tab.id, {file: "/src/timeout.js"})
+            let port = browser.tabs.connect(tab.id);
+            
+            function moreTime(x) {
+                // TODO what about refreshing?
             }
 
-            let group = this.data.groups[gid];
-
-            for (let s in group.sites) {
-                if(matcher(group.sites[s])) {
-                    this._done_groups.add(gid);
-                    if(!this.data.paused) {
-                        group.time += time;
-                    }
-                    
-                    if(group.time > group.limit && group.block_after_timeout && !this.content_script_tabs.has(tab.id)) {
-
-                        this.content_script_tabs.add(tab.id);
-
-                        browser.tabs.insertCSS(tab.id, {file: "/src/timeout.css"})
-                        browser.tabs.executeScript(tab.id, {file: "/src/timeout.js"})
-                        let port = browser.tabs.connect(tab.id);
-                        
-                        function moreTime(x) {
-                            // TODO what about refreshing?
-                        }
-
-                        port.onMessage.addListener(moreTime);
-                        port.onDisconnect.addListener(() => {this.content_script_tabs.remove(tab.id)});
-                    }
-
-                    this.max_timefrac_active = Math.max(this.max_timefrac_active, group.time / group.limit);
-                    break;
-                }
-            }
+            port.onMessage.addListener(moreTime);
+            port.onDisconnect.addListener(() => {this.content_script_tabs.remove(tab.id)});
         }
     }
 
     reset(gid) {
         this.data.groups[gid].time = 0;
+        this.data.groups[gid].extra_time = 0;
         return this
     }
 
@@ -242,6 +257,7 @@ class BackgroundState {
             for(let gid in this.data.groups) {
                 const group = this.data.groups[gid];
                 group.time = Math.max(0, group.time - group.limit)
+                group.extra_time = 0;
             }
             this.data.last_reset = getPastResetDate();
         }
