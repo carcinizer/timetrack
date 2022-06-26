@@ -11,6 +11,16 @@ function getPastResetDate() {
     return d.getTime();
 }
 
+function merge(ret, add) {
+    try {
+        for(let k in add) {
+            ret[k] = add[k]
+        }
+    }
+    catch(x) {}
+    return ret;
+}
+
 const matchers = {
     domain_has: {
         name: "Domain has",
@@ -80,4 +90,4 @@ function match(tab) {
     return (entry) => matchers[entry.method].match(entry, tab);
 }
 
-export {dayDuration, getPastResetDate, matchers, match};
+export {dayDuration, getPastResetDate, matchers, match, merge};

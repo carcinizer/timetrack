@@ -1,10 +1,11 @@
 
+import {merge} from './utils.js'
 
 // Common classes/values for widgets
 const cls = {
     back: {
-        value: "<-",
-        className: "back"
+        properties: {value: "<-"},
+        cls: ["back"]
     },
     
     remove: {
@@ -228,4 +229,57 @@ function timeText(group) {
     return `${timeToHms(group.time)}/${timeToHms(group.limit)}`;
 }
 
-export {cls, createText, createButton, createDiv, createTextInput, createTable, createSelect, createCheckbox, timeText, timeToHms, hmsToTime};
+
+// Create elements from a "prefab" object
+//
+// ElementPrefab:
+//     type: str
+//     cls: [str]
+//     properties: Object
+//     eproperties: {str: (Element) => any}
+//     children: [ElementPrefab]
+//     
+function addElements(root, obj) {
+
+    if(typeof obj === "string") {
+        root.append(obj);
+        return;
+    }
+
+    let elem = document.createElement(obj.type);
+    obj.cls?.forEach(cls => elem.classList.add(cls));
+
+    merge(elem, obj.properties)
+    for(let k in obj.eproperties) {
+        elem[k] = obj.eproperties[k](elem);
+    }
+
+    obj.children?.forEach(child => addElements(elem, child));
+    console.log(elem)
+    root.append(elem);
+}
+
+
+function button({cls, properties, children}, f) {
+    return {
+        type: 'input',
+        cls: ['button', ...cls],
+        properties: merge({type: 'button', onclick: f}, properties),
+        children: children
+    }
+}
+
+function textInput({cls, properties, children}, {value, setter}) {
+    return {
+        type: 'input',
+        cls: cls,
+        properties: {type: 'text', value: value},
+        eproperties: {onchange: (e) => () => {setter(e.value)}},
+        children: children
+    }
+}
+
+
+
+export {cls, createText, createButton, createDiv, createTextInput, createTable, createSelect, createCheckbox, timeText, timeToHms, hmsToTime,
+    addElements, button, textInput};

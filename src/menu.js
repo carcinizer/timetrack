@@ -1,6 +1,6 @@
 import {withData, newGroup} from './data.js';
 import {getPastResetDate, dayDuration, matchers} from './utils.js';
-import {cls, createText, createButton, createDiv, createTextInput, createTable, createSelect, createCheckbox, timeText, hmsToTime} from './ui.js';
+import {cls, createText, createButton, createDiv, createTextInput, createTable, createSelect, createCheckbox, timeText, hmsToTime, addElements, button, textInput} from './ui.js';
 
 
 let table_root = document.getElementById("table_root");
@@ -108,15 +108,19 @@ function aboutPage() {
 }
 
 function showGroupTopLine(g,id) {
-    createDiv(table_root, {className: "line"}, (div) => {
+    addElements(table_root, {type: 'div', cls: ["line"], children: [
+        button(cls.back, listGroups),
+        textInput({cls: ['groupname']}, valueFromGroup(g,id,'name'))
+    ]})
+    //createDiv(table_root, {className: "line"}, (div) => {
         // Back
-        createButton(div, cls.back, listGroups);
+        //createButton(div, cls.back, listGroups);
 
         // Name
-        createTextInput(div, cls.groupname(`${g.name}`), (name) => {
-            withGroup(id, g => {g.name = name})
-        });
-    });
+        //createTextInput(div, cls.groupname(`${g.name}`), (name) => {
+        //    withGroup(id, g => {g.name = name})
+        //});
+    //});
 }
 
 function showGroupTimeLine(g,id) {
@@ -215,6 +219,15 @@ function clean() {
         table_root.removeChild(table_root.lastChild);
     }
     time_update_targets = {};
+}
+
+function valueFromGroup(g, id, name) {
+    return {
+        value: g[name],
+        setter(x) {
+            withGroup(id, g => {g[name] = x})
+        }
+    }
 }
 
 function updateTimes() {
