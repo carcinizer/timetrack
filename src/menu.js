@@ -7,6 +7,7 @@ let table_root = document.getElementById("table_root");
 let warning = document.getElementById("warning");
 let time_update_targets = {};
 
+let wantToExport = false;
 
 function listGroups() {
 
@@ -88,10 +89,13 @@ function aboutPage() {
     })
 
     createButton(table_root, {value: "Export data..."}, () => {
-        browser.permissions.request({permissions: ["downloads"]})
-            .then(granted => {if(granted) {
-                browser.runtime.sendMessage({type: "export", content: {}});
-            }})
+        wantToExport = true;
+        if(checkPermissions(null, {wantToExport: wantToExport, humanReadable: true}) == "") {
+            browser.runtime.sendMessage({type: "export", content: {}});
+        }
+        else {
+            updateWarning();
+        }
     })
 
     createButton(table_root, cls.clean_data, () => {
@@ -275,6 +279,15 @@ async function checkPermissions(data, {wantToExport, humanReadable}) {
     let reason = [];
     let cont = {permissions: []};
 
+    if(wantToExport && !(await browser.permissions.contains({permissions: ["downloads"]}))) {
+        reason.push("Exporting requires downloads access permissions");
+        cont.permissions.push("downloads");
+    }
+
+    if(!data) {
+        return humanReadable ? reason.join('\n') : cont;
+    }
+
     let url_perm = await browser.permissions.contains({origins: ["<all_urls>"]});
 
     if(!url_perm) {
@@ -287,11 +300,6 @@ async function checkPermissions(data, {wantToExport, humanReadable}) {
         }
     };
 
-    if(wantToExport && !(await browser.permissions.contains({permissions: ["downloads"]}))) {
-        reason.push("Exporting requires downloads access permissions");
-        cont.permissions.push("downloads");
-    }
-
     return humanReadable ? reason.join('\n') : cont;
 }
 
@@ -302,12 +310,12 @@ function updateWarning() {
     warning.hidden = true;
 
     withData(data => {
-        checkPermissions(data, {humanReadable: true}).then(reason => {
+        checkPermissions(data, {humanReadable: true, wantToExport: wantToExport}).then(reason => {
             if(reason != "") {
                 createText(warning, 'span', {}, "⚠️ Permissions ");
                 createButton(warning, cls.tooltip(`Permissions required: ${reason}`), () => {})
 
-                checkPermissions(data, {}).then(perms => {
+                checkPermissions(data, {wantToExport: wantToExport}).then(perms => {
 
                     createButton(warning, {value: "Grant"}, () => {
                         browser.permissions.request(perms);
