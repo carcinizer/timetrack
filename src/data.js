@@ -94,7 +94,8 @@ function adaptData(data, noexceptions) {
 
         let newgroup = newGroup();
         for (let k in newgroup) {
-            for (let group of data.groups) {
+            for (let gid of data.group_order) {
+                const group = data.groups[gid]
                 if(!(k in group)) {
                     group[k] = newgroup[k];
                 }
