@@ -90,12 +90,15 @@ function aboutPage() {
 
     createButton(table_root, {value: "Export data..."}, () => {
         wantToExport = true;
-        if(checkPermissions(null, {wantToExport: wantToExport, humanReadable: true}) == "") {
-            browser.runtime.sendMessage({type: "export", content: {}});
-        }
-        else {
-            updateWarning();
-        }
+
+        checkPermissions(null, {wantToExport: wantToExport, humanReadable: true}).then(perm => {
+            if(perm == "") {
+                browser.runtime.sendMessage({type: "export", content: {}});
+            }
+            else {
+                updateWarning();
+            }
+        });
     })
 
     createButton(table_root, cls.clean_data, () => {
