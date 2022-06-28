@@ -18,8 +18,8 @@ const cls = {
     },
 
     removegroup: {
-        value: "Remove group",
-        className: "removegroup"
+        children: ["Remove group"],
+        cls: ["removegroup"]
     },
 
     add: {
@@ -54,15 +54,9 @@ const cls = {
     }},
 
     resettime: {
-        value: "Reset time",
-        className: "resettime"
+        children: ["Reset time"],
+        cls: ["resettime"]
     },
-
-    tooltip: title => {return {
-        value: "?",
-        title: title,
-        className: "tooltip"
-    }},
 
     about: {
         children: ["☰"],
@@ -294,6 +288,31 @@ function textInput({cls, properties, children}, {value, setter}) {
     }
 }
 
+function checkbox({cls, properties}, label, {value, setter}) {
+    return {
+        type: 'label',
+        children: [
+            label,
+            {
+                type: 'input',
+                cls: cls,
+                properties: merge({
+                    type: 'checkbox',
+                    checked: value,
+                    onchange: setter
+                }, properties),
+            }
+        ]
+    }
+}
+
+function tooltip(text, element) {
+    //return div({cls: ['tooltiped']}, ['?', span('tooltip', text)]);
+    let elem = element ? element : button({cls: ['tooltip-container'], children: ["?"]});
+    elem.children.push( [span('tooltip', [text])] )
+    return elem;
+}
+
 const simpleGroup = name => (p, children) => {
     if(children === undefined) {
         return {type: name, children: p}
@@ -319,5 +338,25 @@ const h3 = simpleGroup('h3');
 // }
 
 
-export {cls, createText, createButton, createDiv, createTextInput, createTable, createSelect, createCheckbox, timeText, timeToHms, hmsToTime,
-    addElements, button, textInput, div, span, h1, h3};
+export {
+    cls, 
+    createText,
+    createButton, 
+    createDiv,
+    createTextInput,
+    createTable,
+    createSelect,
+    createCheckbox,
+    timeText,
+    hmsToTime,
+    timeToHms,
+    addElements,
+    button,
+    textInput,
+    div,
+    span,
+    h1,
+    h3,
+    checkbox,
+    tooltip
+};

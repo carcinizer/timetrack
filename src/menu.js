@@ -11,6 +11,7 @@ import {
     createCheckbox,
     timeText,
     hmsToTime,
+    timeToHms,
     addElements,
     button,
     textInput,
@@ -18,7 +19,8 @@ import {
     span,
     h1,
     h3,
-    timeToHms
+    checkbox,
+    tooltip
 } from './ui.js';
 
 
@@ -124,9 +126,15 @@ function listGroup(id, new_g) {
         clean();
         let g = new_g ? new_g : data.groups[id];
 
-        showGroupTopLine(g,id);
-        showGroupTimeLine(g,id);
-        showGroupOptions(g,id);
+        //showGroupTopLine(g,id);
+        //showGroupTimeLine(g,id);
+        //showGroupOptions(g,id);
+        addElements(table_root, [
+            ...groupTopLine(g,id),
+            ...groupTimeLine(g,id),
+            ...groupOptions(g,id)
+        ])
+        
         
         createText(table_root, "h3", {}, "Sites to track:");
 
@@ -218,11 +226,11 @@ function aboutPage() {
     })*/
 }
 
-function showGroupTopLine(g,id) {
-    addElements(table_root, div("line", [
+function groupTopLine(g,id) { return [
+    div("line", [
         button(cls.back, listGroups),
         textInput({cls: ['groupname']}, valueFromGroup(g,id,'name'))
-    ]));
+    ])
     //createDiv(table_root, {className: "line"}, (div) => {
         // Back
         //createButton(div, cls.back, listGroups);
@@ -232,9 +240,24 @@ function showGroupTopLine(g,id) {
         //    withGroup(id, g => {g.name = name})
         //});
     //});
-}
+]}
 
-function showGroupTimeLine(g,id) {
+function groupTimeLine(g,id) { return [
+    div('line', [
+        "Limit: ",
+        textInput({}, {
+            value: timeToHms(g.limit),
+            setter: lim => withGroup(id, g => {
+
+                let newlimit = hmsToTime(lim, g.limit);
+                g.limit = newlimit; 
+                lim = newlimit;
+
+            })
+        })
+    ])
+    
+    /*
     createDiv(table_root, {className: "line"}, (div) => {
 
         let timetext = createText(div, "span", cls.timetext, "Limit: ")
@@ -247,11 +270,11 @@ function showGroupTimeLine(g,id) {
             })
         });
 
-    });
-}
+    });*/
+]}
 
-function showGroupOptions(g,id) {
-    createDiv(table_root, {className: "line"}, (div) => {
+function groupOptions(g,id) { return [
+    /*createDiv(table_root, {className: "line"}, (div) => {
         createDiv(div, {}, (div2) => {
             // Reset time
             createButton(div2, cls.resettime, () => {
@@ -270,8 +293,20 @@ function showGroupOptions(g,id) {
     createCheckbox(table_root, "Block after timeout", {checked: g.block_after_timeout}, 
         (state) => {withGroup(id, g => {
             g.block_after_timeout = state;
-    })});
-}
+    })});*/
+
+    div('line', [
+        div('line', [
+            button(cls.resettime, () => 
+                browser.runtime.sendMessage({type: 'reset', content: {id: id}})
+            ),
+            tooltip("Automatic rewind occurs every day on 4:00 AM, by subtracting the limit from total time."),
+        ]),
+
+        button(cls.removegroup, () => {removeGroup(id)})
+    ]),
+    checkbox({}, "Block after timeout", valueFromGroup(g,id, 'block_after_timeout'))
+]}
 
 function showGroupSites(g,id) {
     

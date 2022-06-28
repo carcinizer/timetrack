@@ -11,11 +11,14 @@ body {
     color: #f1eff5;
 }
 
-input, button, select {
+input, button, select, .tooltip {
     border-width: 1px;
     border-style: solid;
     border-radius: 6px;
     border-color: #4B4A53;
+}
+
+input, button, select {
     height: 25px;
     margin: 2px;
 }
@@ -27,7 +30,7 @@ button, .group-buttons {
     justify-content: center;
 }
 
-input:hover, button:hover, select:hover, .tooltip:active {
+input:hover, button:hover, select:hover, .tooltip-container:active {
     background: #3B3A43;
 }
 
@@ -211,6 +214,35 @@ input[type=checkbox] {
 
     align-items: center;
     justify-content: space-between;
+}
+
+.tooltip-container {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip-container .tooltip {
+    visibility: hidden;
+    z-index: 5;
+    position: absolute;
+    top: 125%;
+    width: 200px;
+    margin-left: -100px;
+
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+
+    background: #1B1A23;
+    opacity: 0.0;
+    padding: 10px;
+
+    transition: opacity 0.2s;
+}
+
+.tooltip-container:hover .tooltip {
+    visibility: visible;
+    opacity: 1.0;
 }
 
 #global_root {
