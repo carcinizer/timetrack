@@ -1,6 +1,25 @@
 import {withData, newGroup} from './data.js';
 import {getPastResetDate, dayDuration, matchers} from './utils.js';
-import {cls, createText, createButton, createDiv, createTextInput, createTable, createSelect, createCheckbox, timeText, hmsToTime, addElements, button, textInput, div, span, timeToHms} from './ui.js';
+import {
+    cls, 
+    createText,
+    createButton, 
+    createDiv,
+    createTextInput,
+    createTable,
+    createSelect,
+    createCheckbox,
+    timeText,
+    hmsToTime,
+    addElements,
+    button,
+    textInput,
+    div,
+    span,
+    h1,
+    h3,
+    timeToHms
+} from './ui.js';
 
 
 let table_root = document.getElementById("table_root");
@@ -25,15 +44,14 @@ function listGroups() {
                     .then(listGroups);
             }),
             
-            {type: 'h1', children: ['Groups:']},
+            h1(['Groups:']),
 
-            div('group-buttons', [...go.map(gid => {
+            div('group-buttons', [
+                ...go.map(gid => {
                     const g = data.groups[gid];
 
                     let timestatus = g.time > g.limit ? "expired" :
                                      g.time > g.limit * 0.9 ? "warn" : "ok";
-
-                    // TODO - updating times
 
                     let time_id = `time-${gid}`;
                     let progress_id = `progress-${gid}`;
@@ -48,7 +66,7 @@ function listGroups() {
                             cls: ['group-progress', 'group-progress-' + timestatus], 
                             id: progress_id,
                             style: {width: `${Math.min(g.time / g.limit, 1) * 100}%`}
-                        })
+                        }, [])
                     ];
 
                     periodic_actions.push(data => {
@@ -118,14 +136,57 @@ function listGroup(id, new_g) {
 
 function aboutPage() {
     clean();
+
     let manifest = browser.runtime.getManifest();
 
-    createButton(table_root, cls.back, listGroups);
+    addElements(table_root, [
+        button(cls.back, listGroups),
+        div('centered', [
+            h1([manifest.name]),
+            h3([`Version ${manifest.version}`]),
+            
+            div('aboutlinks', [
+                {type: 'a', properties: {href: "https://github.com/carcinizer/timetrack"}, children: ["Github link"]}
+            ]),
+            
+            
 
-    createText(table_root, "h1", {}, `${manifest.name}`);
-    createText(table_root, "h3", {}, `Version ${manifest.version}`);
+            div('line', [
+                button(cls.text("Import data..."), () => {
+                    browser.windows.create({
+                        type: "detached_panel",
+                        url: "/src/import.html",
+                        width: 350,
+                        height: 250
+                    })
+                }),
+
+                button(cls.text("Export data..."), () => {
+                    wantToExport = true;
+
+                    checkPermissions(null, {wantToExport: wantToExport, humanReadable: true}).then(perm => {
+                        if(perm == "") {
+                            browser.runtime.sendMessage({type: "export", content: {}});
+                        }
+                        else {
+                            updateWarning();
+                        }
+                    });
+                }),
+
+                button(cls.clean_data, () => {
+                    let sending = browser.runtime.sendMessage({type: "cleanData", content: {}});
+                    sending.then(() => {listGroups()});
+                })
+            ])
+        ])
+
+    ]);
+
+    //createText(table_root, "h1", {}, `${manifest.name}`);
+    //createText(table_root, "h3", {}, `Version ${manifest.version}`);
     
-    createDiv(table_root, {className: "aboutlinks"}, div => {
+    /*createDiv(table_root, {className: "aboutlinks"}, div => {
         createText(div, "a", {href: "https://github.com/carcinizer/timetrack"}, "GitHub link")
     })
 
@@ -154,7 +215,7 @@ function aboutPage() {
     createButton(table_root, cls.clean_data, () => {
         let sending = browser.runtime.sendMessage({type: "cleanData", content: {}});
         sending.then(() => {listGroups()});
-    })
+    })*/
 }
 
 function showGroupTopLine(g,id) {

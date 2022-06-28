@@ -3,6 +3,10 @@ import {merge} from './utils.js'
 
 // Common classes/values for widgets
 const cls = {
+    text: (text) => {
+        return {children: [text]}
+    },
+
     back: {
         children: ["<-"],
         cls: ["back"]
@@ -66,8 +70,8 @@ const cls = {
     },
 
     clean_data: {
-        value: "Clean data",
-        className: "removegroup"
+        children: ["Clean data"],
+        cls: ["removegroup"]
     },
 
     pause: (status) => {
@@ -291,17 +295,20 @@ function textInput({cls, properties, children}, {value, setter}) {
 }
 
 const simpleGroup = name => (p, children) => {
+    if(children === undefined) {
+        return {type: name, children: p}
+    }
     if(typeof p == 'string') {
         return {type: name, cls: [p], children: children}
     }
-    else {
-        return merge({type: name, children: children}, p)
-    }
+
+    return merge({type: name, children: children}, p)
 }
 
 const div = simpleGroup('div');
 const span = simpleGroup('span');
 const h1 = simpleGroup('h1');
+const h3 = simpleGroup('h3');
 
 // function div(cls, children) {
 //     return {type: 'div', cls: [cls], children: children}
@@ -313,4 +320,4 @@ const h1 = simpleGroup('h1');
 
 
 export {cls, createText, createButton, createDiv, createTextInput, createTable, createSelect, createCheckbox, timeText, timeToHms, hmsToTime,
-    addElements, button, textInput, div, span};
+    addElements, button, textInput, div, span, h1, h3};

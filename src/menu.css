@@ -205,6 +205,14 @@ input[type=checkbox] {
     right: 40px;
 }
 
+.centered {
+    display: flex;
+    flex-flow: column;
+
+    align-items: center;
+    justify-content: space-between;
+}
+
 #global_root {
     display: flex;
     flex-flow: column;
