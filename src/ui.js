@@ -265,7 +265,8 @@ function addElements(root, obj) {
         merge(elem.style, obj.style)
     }
 
-    console.log(elem)
+    elem.id = obj.id;
+
     root.append(elem);
 }
 

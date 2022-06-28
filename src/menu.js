@@ -5,7 +5,7 @@ import {cls, createText, createButton, createDiv, createTextInput, createTable, 
 
 let table_root = document.getElementById("table_root");
 let warning = document.getElementById("warning");
-let time_update_targets = {};
+let periodic_actions = [];
 
 let wantToExport = false;
 
@@ -35,17 +35,27 @@ function listGroups() {
 
                     // TODO - updating times
 
+                    let time_id = `time-${gid}`;
+                    let progress_id = `progress-${gid}`;
+
                     let button_intetiors = [
                         span('group-name', [`${g.name}`]),
-                        span('group-time', [timeToHms(g.time)]),
+                        span({cls: ['group-time'], id: time_id}, [timeToHms(g.time)]),
                         //span('group-time-remaining', [(timestatus == 'expired' ? '+':'-') + timeToHms(Math.abs(g.limit - g.time))]),
                         span('group-limit', ['/' + timeToHms(g.limit)]),
                         span('group-extra-time', g.extra_time ? ['+'+timeToHms(g.extra_time)] : []),
                         div({
                             cls: ['group-progress', 'group-progress-' + timestatus], 
+                            id: progress_id,
                             style: {width: `${Math.min(g.time / g.limit, 1) * 100}%`}
                         })
                     ];
+
+                    periodic_actions.push(data => {
+                        const g = data.groups[gid];
+                        document.getElementById(time_id).innerText = timeToHms(g.time);
+                        document.getElementById(progress_id).style.width = `${Math.min(g.time / g.limit, 1) * 100}%`
+                    })
 
                     return button({cls: ['group-button'], children: button_intetiors}, () => listGroup(gid));
                 }),
@@ -258,7 +268,7 @@ function clean() {
     while(table_root.firstChild) {
         table_root.removeChild(table_root.lastChild);
     }
-    time_update_targets = {};
+    periodic_actions = [];
 }
 
 function valueFromGroup(g, id, name) {
@@ -275,9 +285,10 @@ function updateTimes() {
     let sending = browser.runtime.sendMessage({type: "updateTimes"});
     sending.then(() => {
         withData(data => {
-        for (let k in time_update_targets) {
-            time_update_targets[k].innerText = timeText(data.groups[k]);
-            time_update_targets[k].className = cls.time(data.groups[k]).className;
+        for (let k of periodic_actions) {
+            //time_update_targets[k].innerText = timeText(data.groups[k]);
+            //time_update_targets[k].className = cls.time(data.groups[k]).className;
+            k(data);
         }});
     });
 }
