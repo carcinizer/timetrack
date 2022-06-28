@@ -1,6 +1,6 @@
 import {withData, newGroup} from './data.js';
 import {getPastResetDate, dayDuration, matchers} from './utils.js';
-import {cls, createText, createButton, createDiv, createTextInput, createTable, createSelect, createCheckbox, timeText, hmsToTime, addElements, button, textInput} from './ui.js';
+import {cls, createText, createButton, createDiv, createTextInput, createTable, createSelect, createCheckbox, timeText, hmsToTime, addElements, button, textInput, div, span, timeToHms} from './ui.js';
 
 
 let table_root = document.getElementById("table_root");
@@ -15,10 +15,50 @@ function listGroups() {
 
     withData((data) => {
         clean();
-        const g = data.groups;
         const go = data.group_order;
 
-        createText(table_root, "h2", {}, "Groups:");
+        addElements(table_root, [
+            
+            button(cls.about, aboutPage),
+            button(cls.pause(data.paused), () => {
+                browser.runtime.sendMessage({type: "switchPause", content: {}})
+                    .then(listGroups);
+            }),
+            
+            {type: 'h1', children: ['Groups:']},
+
+            div('group-buttons', [...go.map(gid => {
+                    const g = data.groups[gid];
+
+                    let timestatus = g.time > g.limit ? "expired" :
+                                     g.time > g.limit * 0.9 ? "warn" : "ok";
+
+                    // TODO - updating times
+
+                    let button_intetiors = [
+                        span('group-name', [`${g.name}`]),
+                        span('group-time', [timeToHms(g.time)]),
+                        //span('group-time-remaining', [(timestatus == 'expired' ? '+':'-') + timeToHms(Math.abs(g.limit - g.time))]),
+                        span('group-limit', ['/' + timeToHms(g.limit)]),
+                        span('group-extra-time', g.extra_time ? ['+'+timeToHms(g.extra_time)] : []),
+                        div({
+                            cls: ['group-progress', 'group-progress-' + timestatus], 
+                            style: {width: `${Math.min(g.time / g.limit, 1) * 100}%`}
+                        })
+                    ];
+
+                    return button({cls: ['group-button'], children: button_intetiors}, () => listGroup(gid));
+                }),
+                button({cls: ['group-button'], children: [
+                    span('group-name', ['+']),
+                    span('group-sub', ['Click to add'])
+                ]}, addGroup)
+            ]),
+            
+
+        ])
+
+        /*createText(table_root, "h2", {}, "Groups:");
         createButton(table_root, cls.about, aboutPage)
         createButton(table_root, cls.pause(data.paused), () => {
             browser.runtime.sendMessage({type: "switchPause", content: {}})
@@ -42,7 +82,7 @@ function listGroups() {
             createButton(div, cls.add, () => {
                 addGroup();
             });
-        });
+        });*/
     });
 }
 
@@ -108,10 +148,10 @@ function aboutPage() {
 }
 
 function showGroupTopLine(g,id) {
-    addElements(table_root, {type: 'div', cls: ["line"], children: [
+    addElements(table_root, div("line", [
         button(cls.back, listGroups),
         textInput({cls: ['groupname']}, valueFromGroup(g,id,'name'))
-    ]})
+    ]));
     //createDiv(table_root, {className: "line"}, (div) => {
         // Back
         //createButton(div, cls.back, listGroups);

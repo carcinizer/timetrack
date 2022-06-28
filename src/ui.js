@@ -4,7 +4,7 @@ import {merge} from './utils.js'
 // Common classes/values for widgets
 const cls = {
     back: {
-        properties: {value: "<-"},
+        children: ["<-"],
         cls: ["back"]
     },
     
@@ -61,8 +61,8 @@ const cls = {
     }},
 
     about: {
-        value: "☰",
-        className: "about"
+        children: ["☰"],
+        cls: ["about"]
     },
 
     clean_data: {
@@ -72,8 +72,8 @@ const cls = {
 
     pause: (status) => {
         return {
-            value: status ? "Resume" : "Pause" ,
-            className: "pause"
+            children: [status ? "Resume" : "Pause"],
+            cls: ["pause"]
     }}
 }
 
@@ -241,6 +241,11 @@ function timeText(group) {
 //     
 function addElements(root, obj) {
 
+    if(Array.isArray(obj)) {
+        obj.forEach(x => addElements(root, x))
+        return;
+    }
+
     if(typeof obj === "string") {
         root.append(obj);
         return;
@@ -255,6 +260,11 @@ function addElements(root, obj) {
     }
 
     obj.children?.forEach(child => addElements(elem, child));
+
+    if(obj.style) {
+        merge(elem.style, obj.style)
+    }
+
     console.log(elem)
     root.append(elem);
 }
@@ -262,8 +272,8 @@ function addElements(root, obj) {
 
 function button({cls, properties, children}, f) {
     return {
-        type: 'input',
-        cls: ['button', ...cls],
+        type: 'button',
+        cls: ['button', ...(cls ? cls : [])],
         properties: merge({type: 'button', onclick: f}, properties),
         children: children
     }
@@ -279,7 +289,27 @@ function textInput({cls, properties, children}, {value, setter}) {
     }
 }
 
+const simpleGroup = name => (p, children) => {
+    if(typeof p == 'string') {
+        return {type: name, cls: [p], children: children}
+    }
+    else {
+        return merge({type: name, children: children}, p)
+    }
+}
+
+const div = simpleGroup('div');
+const span = simpleGroup('span');
+const h1 = simpleGroup('h1');
+
+// function div(cls, children) {
+//     return {type: 'div', cls: [cls], children: children}
+// }
+
+// function span(cls, children) {
+//     return {type: 'span', cls: [cls], children: children}
+// }
 
 
 export {cls, createText, createButton, createDiv, createTextInput, createTable, createSelect, createCheckbox, timeText, timeToHms, hmsToTime,
-    addElements, button, textInput};
+    addElements, button, textInput, div, span};

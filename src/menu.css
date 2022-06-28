@@ -20,15 +20,22 @@ input, button, select {
     margin: 2px;
 }
 
-input:hover, select:hover, .tooltip:active {
+button, .group-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+input:hover, button:hover, select:hover, .tooltip:active {
     background: #3B3A43;
 }
 
-input:active {
+input:active, button:active {
     background: #1B1A23;
 }
 
-input:disabled, select:disabled {
+input:disabled, button:disabled, select:disabled {
     color: #4B4A53;
 }
 
@@ -123,6 +130,71 @@ input[type=checkbox] {
 .aboutlinks {
     margin-top: 15px;
     margin-bottom: 15px;
+}
+
+.group-button {
+    position: relative;
+    width: 100%;
+    height: 40px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    margin-left: 6px;
+    margin-right: 6px;
+} 
+
+.group-button * {
+    background: #00000000
+}
+
+.group-name {
+    font-size: 18px;
+    z-index: 1;
+}
+
+.group-time, .group-time-remaining, .group-limit, .group-extra-time, .group-sub {
+    position: absolute;
+    /*color: #77778b;*/
+    opacity: 0.5;
+    font-size: 10px;
+    z-index: 1;
+}
+
+.group-sub {
+    position: relative;
+    top: -2px;
+}
+
+.group-time, .group-time-remaining {
+    left: 3px;
+}
+
+.group-time, .group-limit {
+    bottom: 3px;
+}
+
+.group-limit, .group-extra-time {
+    right: 3px;
+}
+
+.group-time-remaining, .group-extra-time {
+    top: 3px;
+}
+
+.group-progress {
+    height: 100%;
+    position: absolute;
+    left: 0px;
+    border-radius: 6px;
+}
+
+.group-progress-ok {
+    background: #FFFFFF14;
+}
+.group-progress-warn {
+    background: #FFFF0018;
+}
+.group-progress-expired {
+    background: #FF000022;
 }
 
 .pause {
