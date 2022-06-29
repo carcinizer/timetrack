@@ -83,7 +83,6 @@ function* getAssociatedGroupIDs(tab, data) {
 
     for (let gid in data.groups) {
         const group = data.groups[gid];
-        console.log(gid);
 
         for (let s in group.sites) {
             if(matcher(group.sites[s])) {
@@ -101,7 +100,6 @@ class BackgroundState {
         this.now = test ? () => 0 : Date.now;
 
         this.saveData = test ? () => {return this} : () => {saveData(this.data); return this}
-        //this.data.paused = false;
 
         this.last_update_time = this.now();
         this.last_update_active = false;

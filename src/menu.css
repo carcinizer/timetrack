@@ -45,24 +45,16 @@ input:disabled, button:disabled, select:disabled {
 input[type=checkbox] {
 }
 
-.line, tr {
+.line {
     display: flex;
     align-items: center;
     justify-content: space-between;
-}
-
-.line {
     margin-bottom: 6px;
 }
 
 .site-data {
     height: 25px;
     width: 142px;
-}
-
-.timestats {
-    height: 30px;
-    flex: 2;
 }
 
 .groupname {
@@ -108,18 +100,6 @@ input[type=checkbox] {
 
 .resettime:active {
     background: #6a5d2c;
-}
-
-.timelimit {
-    flex: 1;
-}
-
-.timewarn {
-    color: #f3ea59;
-}
-
-.timeexpired {
-    color: #ef4334;
 }
 
 .about {
@@ -248,10 +228,6 @@ input[type=checkbox] {
 #global_root {
     display: flex;
     flex-flow: column;
-}
-
-#table_root {
-    
 }
 
 #warning_container {
