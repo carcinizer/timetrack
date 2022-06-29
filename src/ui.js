@@ -13,8 +13,8 @@ const cls = {
     },
     
     remove: {
-        value: "-",
-        className: "remove"
+        children: ["-"],
+        cls: ["remove"]
     },
 
     removegroup: {
@@ -23,18 +23,13 @@ const cls = {
     },
 
     add: {
-        value: "+",
-        className: "add"
+        children: ["+"],
+        cls: ["add"]
     },
 
     groupname: (name) => {return {
         value: name,
         className: "groupname"
-    }},
-
-    rowmain: (name) => {return {
-        value: name,
-        className: "rowmain"
     }},
 
     timestats: {
@@ -72,7 +67,14 @@ const cls = {
         return {
             children: [status ? "Resume" : "Pause"],
             cls: ["pause"]
-    }}
+    }},
+
+    site_data: enabled => {
+        return {
+            cls: ["site-data"],
+            properties: {disabled: !enabled}
+        }
+    }
 }
 
 // Create text with a given tag
@@ -234,7 +236,7 @@ function timeText(group) {
 //     type: str
 //     cls: [str]
 //     properties: Object
-//     eproperties: {str: (Element) => any}
+//     eproperties: {str: (Element) => any}  // Properties requiring access to final element, such as events
 //     children: [ElementPrefab]
 //     
 function addElements(root, obj) {
@@ -272,7 +274,7 @@ function addElements(root, obj) {
 function button({cls, properties, children}, f) {
     return {
         type: 'button',
-        cls: ['button', ...(cls ? cls : [])],
+        cls: cls,
         properties: merge({type: 'button', onclick: f}, properties),
         children: children
     }
@@ -303,6 +305,26 @@ function checkbox({cls, properties}, label, {value, setter}) {
                 }, properties),
             }
         ]
+    }
+}
+
+function select({cls, properties}, choices, {value, setter}) {
+
+    let options = [];
+    for (let i in choices) {
+        options.push({
+            type: 'option',
+            properties: {value: i},
+            children: [choices[i]]
+        })
+    }
+
+    return {
+        type: 'select',
+        cls: cls,
+        properties: merge({value: value}, properties),
+        eproperties: {onchange: e => () => {setter(e.value)}},
+        children: options
     }
 }
 
@@ -358,5 +380,6 @@ export {
     h1,
     h3,
     checkbox,
-    tooltip
+    tooltip,
+    select
 };

@@ -20,8 +20,15 @@ import {
     h1,
     h3,
     checkbox,
-    tooltip
+    tooltip,
+    select
 } from './ui.js';
+
+
+let matchersnames = {};
+for (let m in matchers) {
+    matchersnames[m] = matchers[m].name;
+}
 
 
 let table_root = document.getElementById("table_root");
@@ -126,19 +133,13 @@ function listGroup(id, new_g) {
         clean();
         let g = new_g ? new_g : data.groups[id];
 
-        //showGroupTopLine(g,id);
-        //showGroupTimeLine(g,id);
-        //showGroupOptions(g,id);
         addElements(table_root, [
             ...groupTopLine(g,id),
             ...groupTimeLine(g,id),
-            ...groupOptions(g,id)
+            ...groupOptions(g,id),
+            h3(["Sites to track:"]),
+            ...groupSites(g,id)
         ])
-        
-        
-        createText(table_root, "h3", {}, "Sites to track:");
-
-        showGroupSites(g,id);
     })
 }
 
@@ -308,8 +309,26 @@ function groupOptions(g,id) { return [
     checkbox({}, "Block after timeout", valueFromGroup(g,id, 'block_after_timeout'))
 ]}
 
-function showGroupSites(g,id) {
-    
+function groupSites(g,id) { return [
+
+    ...g.site_order.map(sid => div('line', [
+        select({}, matchersnames, valueFromSite(g,id,sid, 'method')),
+        textInput(
+            cls.site_data(matchers[g.sites[sid].method].has_url), 
+            valueFromSite(g,id,sid, 'data')
+        ),
+        button(cls.remove, () => 
+            withGroup(id,g => {removeSite(g,sid)})
+        )
+    ])),
+    button(cls.add, async () => {
+        withActiveTab(tab => {
+            withGroup(id, g => {
+                addSite(g, tab.url);
+            });
+        });
+    }) 
+    /*
     let matchersnames = {};
     for (let m in matchers) {
         matchersnames[m] = matchers[m].name;
@@ -355,8 +374,8 @@ function showGroupSites(g,id) {
                 addSite(g, tab.url);
             });
         });
-    })
-}
+    })*/
+]}
 
 
 
@@ -372,6 +391,15 @@ function valueFromGroup(g, id, name) {
         value: g[name],
         setter(x) {
             withGroup(id, g => {g[name] = x})
+        }
+    }
+}
+
+function valueFromSite(g, id, sid, name) {
+    return {
+        value: g.sites[sid][name],
+        setter(x) {
+            withGroup(id, g => {g.sites[sid][name] = x})
         }
     }
 }
