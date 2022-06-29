@@ -2,14 +2,6 @@ import {withData, newGroup} from './data.js';
 import {getPastResetDate, dayDuration, matchers} from './utils.js';
 import {
     cls, 
-    createText,
-    createButton, 
-    createDiv,
-    createTextInput,
-    createTable,
-    createSelect,
-    createCheckbox,
-    timeText,
     hmsToTime,
     timeToHms,
     addElements,
@@ -94,32 +86,6 @@ function listGroups() {
             
 
         ])
-
-        /*createText(table_root, "h2", {}, "Groups:");
-        createButton(table_root, cls.about, aboutPage)
-        createButton(table_root, cls.pause(data.paused), () => {
-            browser.runtime.sendMessage({type: "switchPause", content: {}})
-                .then(listGroups);
-        });
-
-        createDiv(table_root, {}, (div) => {
-            createTable(div, {}, go.length, 2, (r,l,c) => {
-                const group = data.groups[go[l]];
-                if(c===0) { // Group settings
-                    createButton(r, cls.rowmain(`${group.name}`), () => {listGroup(go[l])});
-                }
-                else if(c===1) { // Time
-                    let t = createText(r, "span", cls.timestats, timeText(group));
-                    time_update_targets[go[l]] = t;
-                    return cls.time(group);
-                }
-            });
-            
-            // Add new group
-            createButton(div, cls.add, () => {
-                addGroup();
-            });
-        });*/
     });
 }
 
@@ -189,42 +155,7 @@ function aboutPage() {
                 })
             ])
         ])
-
     ]);
-
-    //createText(table_root, "h1", {}, `${manifest.name}`);
-    //createText(table_root, "h3", {}, `Version ${manifest.version}`);
-    
-    /*createDiv(table_root, {className: "aboutlinks"}, div => {
-        createText(div, "a", {href: "https://github.com/carcinizer/timetrack"}, "GitHub link")
-    })
-
-    createButton(table_root, {value: "Import data..."}, () => {
-        browser.windows.create({
-            type: "detached_panel",
-            url: "/src/import.html",
-            width: 350,
-            height: 250
-        })
-    })
-
-    createButton(table_root, {value: "Export data..."}, () => {
-        wantToExport = true;
-
-        checkPermissions(null, {wantToExport: wantToExport, humanReadable: true}).then(perm => {
-            if(perm == "") {
-                browser.runtime.sendMessage({type: "export", content: {}});
-            }
-            else {
-                updateWarning();
-            }
-        });
-    })
-
-    createButton(table_root, cls.clean_data, () => {
-        let sending = browser.runtime.sendMessage({type: "cleanData", content: {}});
-        sending.then(() => {listGroups()});
-    })*/
 }
 
 function groupTopLine(g,id) { return [
@@ -232,21 +163,12 @@ function groupTopLine(g,id) { return [
         button(cls.back, listGroups),
         textInput({cls: ['groupname']}, valueFromGroup(g,id,'name'))
     ])
-    //createDiv(table_root, {className: "line"}, (div) => {
-        // Back
-        //createButton(div, cls.back, listGroups);
-
-        // Name
-        //createTextInput(div, cls.groupname(`${g.name}`), (name) => {
-        //    withGroup(id, g => {g.name = name})
-        //});
-    //});
 ]}
 
 function groupTimeLine(g,id) { return [
     div('line', [
         "Limit: ",
-        textInput({}, {
+        textInput({cls: ['timelimit']}, {
             value: timeToHms(g.limit),
             setter: lim => withGroup(id, g => {
 
@@ -257,45 +179,9 @@ function groupTimeLine(g,id) { return [
             })
         })
     ])
-    
-    /*
-    createDiv(table_root, {className: "line"}, (div) => {
-
-        let timetext = createText(div, "span", cls.timetext, "Limit: ")
-
-        createTextInput(div, cls.timelimit(g.limit), (lim) => {
-            withGroup(id, g => {
-                let newlimit = hmsToTime(lim, g.limit);
-                g.limit = newlimit; 
-                lim = newlimit;
-            })
-        });
-
-    });*/
 ]}
 
 function groupOptions(g,id) { return [
-    /*createDiv(table_root, {className: "line"}, (div) => {
-        createDiv(div, {}, (div2) => {
-            // Reset time
-            createButton(div2, cls.resettime, () => {
-                browser.runtime.sendMessage({type: "reset", content: {id: id}});
-            })
-            // Tooltip
-            createButton(div2, cls.tooltip("Automatic reset occurs every day on 4:00 AM, by subtracting the limit from total time."), () => {});
-            
-        })
-        // Remove group
-        createButton(div, cls.removegroup, () => {
-            removeGroup(id);
-        });
-    });
-
-    createCheckbox(table_root, "Block after timeout", {checked: g.block_after_timeout}, 
-        (state) => {withGroup(id, g => {
-            g.block_after_timeout = state;
-    })});*/
-
     div('line', [
         div('line', [
             button(cls.resettime, () => 
@@ -328,53 +214,6 @@ function groupSites(g,id) { return [
             });
         });
     }) 
-    /*
-    let matchersnames = {};
-    for (let m in matchers) {
-        matchersnames[m] = matchers[m].name;
-    }
-
-    createTable(table_root, {}, g.site_order.length, 3, (r,l,c) => {
-
-        let sid = g.site_order[l];
-
-        if(c===0) { // Type
-            createSelect(r, {}, 
-                g.sites[sid].method, 
-                matchersnames,
-                i => {withGroup(id, g => {
-                    g.sites[sid].method = i;
-                })}
-            );
-        }
-        else if(c===1) { // Domain
-            let uclass = cls.rowmain(g.sites[sid].data)
-
-            if( !matchers[g.sites[sid].method].has_url ) {
-                uclass.disabled = true;
-            }
-
-            createTextInput(r, uclass, (url) => {
-                withGroup(id, g => {
-                    g.sites[sid].data = url;
-                });
-            });
-        }
-        else if(c===2) { // Remove
-            createButton(r, cls.remove, () => {
-                withGroup(id, g => {removeSite(g,sid);});
-            })
-        }
-    });
-    
-    // Add new site
-    createButton(table_root, cls.add, async () => {
-        withActiveTab(tab => {
-            withGroup(id, g => {
-                addSite(g, tab.url);
-            });
-        });
-    })*/
 ]}
 
 
@@ -410,8 +249,6 @@ function updateTimes() {
     sending.then(() => {
         withData(data => {
         for (let k of periodic_actions) {
-            //time_update_targets[k].innerText = timeText(data.groups[k]);
-            //time_update_targets[k].className = cls.time(data.groups[k]).className;
             k(data);
         }});
     });
@@ -503,15 +340,14 @@ function updateWarning() {
     withData(data => {
         checkPermissions(data, {humanReadable: true, wantToExport: wantToExport}).then(reason => {
             if(reason != "") {
-                createText(warning, 'span', {}, "⚠️ Permissions ");
-                createButton(warning, cls.tooltip(`Permissions required: ${reason}`), () => {})
-
                 checkPermissions(data, {wantToExport: wantToExport}).then(perms => {
-
-                    createButton(warning, {value: "Grant"}, () => {
-                        browser.permissions.request(perms);
-                    })
-
+                    addElements(warning, div('line', [
+                        span(["⚠️ Permissions "]),
+                        tooltip(`Permissions required: ${reason}`),
+                        button({children: ['Grant']}, () => {
+                            browser.permissions.request(perms);
+                        })
+                    ]))
                 });
                 warning.hidden = false;
             }
