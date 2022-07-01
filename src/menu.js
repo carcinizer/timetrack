@@ -1,5 +1,5 @@
 import {withData, newGroup} from './data.js';
-import {getPastResetDate, dayDuration, matchers} from './utils.js';
+import {getPastResetDate, dayDuration, matchers, match_items} from './utils.js';
 import {
     cls, 
     hmsToTime,
@@ -15,12 +15,6 @@ import {
     tooltip,
     select
 } from './ui.js';
-
-
-let matchersnames = {};
-for (let m in matchers) {
-    matchersnames[m] = matchers[m].name;
-}
 
 
 let table_root = document.getElementById("table_root");
@@ -198,9 +192,10 @@ function groupOptions(g,id) { return [
 function groupSites(g,id) { return [
 
     ...g.site_order.map(sid => div('line', [
-        select({}, matchersnames, valueFromSite(g,id,sid, 'method')),
+        select({}, matchers.item, valueFromSite(g,id,sid, 'item', ensureExistingMethod)),
+        select({}, matchers.method(g.sites[sid].item), valueFromSite(g,id,sid, 'method')),
         textInput(
-            cls.site_data(matchers[g.sites[sid].method].has_url), 
+            cls.site_data(match_items[g.sites[sid].item].show_methods), 
             valueFromSite(g,id,sid, 'data')
         ),
         button(cls.remove, () => 
@@ -234,11 +229,14 @@ function valueFromGroup(g, id, name) {
     }
 }
 
-function valueFromSite(g, id, sid, name) {
+function valueFromSite(g, id, sid, name, f) {
     return {
         value: g.sites[sid][name],
         setter(x) {
-            withGroup(id, g => {g.sites[sid][name] = x})
+            withGroup(id, g => {
+                g.sites[sid][name] = x
+                if(f) f(g.sites[sid])
+            })
         }
     }
 }
@@ -287,10 +285,19 @@ function updateGroup(id, groupdata, callback_after) {
 function addSite(group, string) {
     let id = Date.now()
     group.sites[id] = {
-        method: "domain_has",
+        item: "domain",
+        method: "has",
         data: string
     };
     group.site_order.push(id);
+}
+
+function ensureExistingMethod(site) {
+    if(!(site.method in matchers.method(site.item))) {
+        for(let i in matchers.method(site.item)) {
+            site.method = i; break;
+        }
+    }
 }
 
 function removeGroup(id) {

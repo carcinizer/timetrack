@@ -21,6 +21,13 @@ function merge(ret, add) {
     return ret;
 }
 
+function mapObj(obj, f) {
+    let a = {};
+    for (let i in obj) {
+        a[i] = f(obj[i], i, obj)
+    }
+    return a
+}
 
 const match_item_methods = {
     has: {
@@ -76,6 +83,17 @@ function match(tab) {
         catch(x) {return false}
     }
 }
+
+
+const matchers = {
+    item: mapObj(match_items, x=>x.name),
+    method(item) {
+        return mapObj(match_items[item].methods, x=>x.name)
+    }
+}
+
+console.log(matchers);
+console.log(matchers.method('domain'));
 
 /*
 const matchers = {
@@ -148,4 +166,4 @@ function match(tab) {
 }
 */
 
-export {dayDuration, getPastResetDate, match, match_items};
+export {dayDuration, getPastResetDate, merge, match, match_items, matchers};

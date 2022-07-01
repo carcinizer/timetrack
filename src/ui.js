@@ -161,7 +161,7 @@ function select({cls, properties}, choices, {value, setter}) {
     for (let i in choices) {
         options.push({
             type: 'option',
-            properties: {value: i},
+            properties: {value: i, selected: value == i},
             children: [choices[i]]
         })
     }
@@ -169,7 +169,7 @@ function select({cls, properties}, choices, {value, setter}) {
     return {
         type: 'select',
         cls: cls,
-        properties: merge({value: value}, properties),
+        properties: properties,
         eproperties: {onchange: e => () => {setter(e.value)}},
         children: options
     }
