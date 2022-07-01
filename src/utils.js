@@ -21,6 +21,63 @@ function merge(ret, add) {
     return ret;
 }
 
+
+const match_item_methods = {
+    has: {
+        name: "has",
+        method(item, entry) {
+            return item.includes(entry.data)
+        }
+    },
+    is: {
+        name: "is",
+        method(item, entry) {
+            return item == entry.data
+        }
+    }
+};
+
+const match_items = {
+    domain: {
+        name: "Domain",
+        methods: match_item_methods,
+        show_methods: true,
+        get(tab) {
+            return new URL(tab.url).hostname;
+        }
+    },
+    url: {
+        name: "Full URL",
+        methods: match_item_methods,
+        show_methods: true,
+        get(tab) {
+            return tab.url;
+        }
+    },
+    any: {
+        name: "Any tab",
+        methods: {any: {name: '---', method(item, entry) {return true}}},
+        show_methods: false,
+        get(tab) {
+            return true
+        }
+    }
+};
+
+function match(tab) {
+    return entry => {
+        try {
+            const item_matcher = match_items[entry.item];
+            const item   = item_matcher.get(tab);
+            const method = item_matcher.methods[entry.method];
+
+            return method.method(item, entry);
+        }
+        catch(x) {return false}
+    }
+}
+
+/*
 const matchers = {
     domain_has: {
         name: "Domain has",
@@ -89,5 +146,6 @@ const matchers = {
 function match(tab) {
     return (entry) => matchers[entry.method].match(entry, tab);
 }
+*/
 
-export {dayDuration, getPastResetDate, matchers, match, merge};
+export {dayDuration, getPastResetDate, match, match_items};

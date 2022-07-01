@@ -20,7 +20,9 @@
 // Site:
 //  method: String
 //  data: String
-//  
+//  item: String
+//  navigated_from: bool
+//
 // BackgroundState:
 //  data: DataProxy
 //  last_update_time: int
@@ -31,7 +33,7 @@
 
 const loc = "sync"; // "local" or "sync"
 
-const DATA_VERSION = 5;
+const DATA_VERSION = 6;
 
 function newGroup() {
     return {
@@ -52,6 +54,15 @@ function newData() {
         groups: {},
         group_order: [],
         paused: false
+    }
+}
+
+function newSite() {
+    return {
+        data: '',
+        method: 'has',
+        item: 'url',
+        navigated_from: false
     }
 }
 
@@ -102,11 +113,50 @@ function adaptData(data, noexceptions) {
             }
         }
 
+        let newsite = newSite();
+        for (let k in newsite) {
+            for (let {site} of sitesIn(data)) {
+                if(!(k in site)) {
+                    site[k] = newsite[k];
+                }
+            }
+        }
+
+        const site_v6_migration = {
+            url_has(site) {site.item = 'url'; site.method = 'has'},
+            url_is(site)  {site.item = 'url'; site.method = 'is'},
+            domain_has(site) {site.item = 'domain'; site.method = 'has'},
+            domain_is(site)  {site.item = 'domain'; site.method = 'is'},
+            any(site)  {site.item = 'any'; site.method = 'any'}
+        }
+
+        if(data.version < 6) {
+            for (let {site} of sitesIn(data)) {
+                site_v6_migration[site.method](site);
+            }
+        }
+
         data.version = DATA_VERSION;
 
         return data;
     }
 }
+
+
+function* groupsIn(data) {
+    for (let gid of data.group_order) {
+        yield {group: data.groups[gid], gid: gid};
+    }
+}
+
+function* sitesIn(data) {
+    for (let {group, gid} of groupsIn(data)) {
+        for (let sid of group.site_order) {
+            yield {site: group.sites[sid], sid: sid, group: group, gid: gid};
+        }
+    }
+}
+
 
 export {withData, saveData, newData, newGroup, adaptData};
 
