@@ -139,21 +139,13 @@ function textInput({cls, properties, children}, {value, setter}) {
 }
 
 function checkbox({cls, properties}, label, {value, setter}) {
-    return {
-        type: 'label',
-        children: [
-            label,
-            {
-                type: 'input',
-                cls: cls,
-                properties: merge({
-                    type: 'checkbox',
-                    checked: value,
-                    onchange: setter
-                }, properties),
-            }
-        ]
-    }
+    return div('same-line', [
+        button(
+            {cls: value ? ["checkbox", "enabled"] : ["checkbox"]}, 
+            () => {setter(!value)}
+        ),
+        span('checkbox-label', [label])
+    ])
 }
 
 function select({cls, properties}, choices, {value, setter}) {

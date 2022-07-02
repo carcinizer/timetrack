@@ -46,7 +46,50 @@ input:disabled, button:disabled, select:disabled {
     opacity: 0.6;
 }
 
-input[type=checkbox] {
+.checkbox {
+    width: 32px;
+    height: 20px;
+    border-radius: 10px;
+    margin-right: 10px;
+    background: #1B1A23;
+    position: relative;
+    vertical-align: middle;
+}
+
+.checkbox.enabled {
+    background: #2E89F2;
+}
+
+.checkbox:not(.enabled)::after {
+    content: "";
+    background: white;
+    width: 16px;
+    height: 16px;
+    border-radius: 10px;
+    position: absolute;
+    left: 0%;
+    top: 1px;
+}
+
+.checkbox.enabled::after {
+    content: "";
+    background: white;
+    width: 16px;
+    height: 16px;
+    border-radius: 10px;
+    position: absolute;
+    right: 0%;
+    top: 1px;
+}
+
+.same-line {
+    display: inline;
+    display: flex;
+}
+
+.checkbox-label {
+    position: relative;
+    top: 1px;
 }
 
 .line, .line-full {
@@ -181,6 +224,10 @@ input[type=checkbox] {
 }
 .group-progress-expired {
     background: #FF000022;
+}
+
+.timelimit {
+    flex: 1;
 }
 
 .site-to-track {
