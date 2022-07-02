@@ -1,4 +1,6 @@
 
+import {span} from './ui.js'
+
 const dayDuration = 24*60*60*1000;
 const resetHour = 4;
 
@@ -31,7 +33,7 @@ function mapObj(obj, f) {
 
 const match_item_methods = {
     has: {
-        name: "has",
+        name: "contains",
         method(item, entry) {
             return item.includes(entry.data)
         }
@@ -44,11 +46,16 @@ const match_item_methods = {
     }
 };
 
+function common_item_description(site) {
+    return [span('dimmed', [`${this.name} ${this.methods[site.method].name} `]), site.data]
+}
+
 const match_items = {
     domain: {
         name: "Domain",
         methods: match_item_methods,
         show_methods: true,
+        description: common_item_description,
         get(tab) {
             return new URL(tab.url).hostname;
         }
@@ -57,14 +64,18 @@ const match_items = {
         name: "Full URL",
         methods: match_item_methods,
         show_methods: true,
+        description: common_item_description,
         get(tab) {
             return tab.url;
         }
     },
     any: {
-        name: "Any tab",
+        name: "Any site",
         methods: {any: {name: '---', method(item, entry) {return true}}},
         show_methods: false,
+        description(site) {
+            return ["Any site"]
+        },
         get(tab) {
             return true
         }

@@ -215,9 +215,9 @@ function groupSite(g,id,site,sid) {
             {
                 cls: ['site-button', 'line-full'], 
                 children: [div('line-full', [
-                    span('site-caption',[`todo`]),
-                    span('site-on-show',[`▲`]),
-                    span('site-on-hide',[`▼`])
+                    span('site-caption', match_items[site.item].description(site)),
+                    span({cls: ['site-on-show', 'dimmed']},[`▲`]),
+                    span({cls: ['site-on-hide', 'dimmed']},[`▼`])
                 ])]
             }, 
             () => {

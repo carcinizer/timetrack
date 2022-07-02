@@ -42,6 +42,10 @@ input:disabled, button:disabled, select:disabled {
     color: #4B4A53;
 }
 
+.dimmed {
+    opacity: 0.6;
+}
+
 input[type=checkbox] {
 }
 
@@ -187,14 +191,21 @@ input[type=checkbox] {
 .site-to-track {
     width: 100%;
     height: auto;
-    margin: 3px;
+    margin: 5px;
 }
 
 .site-button {
+    height: 30px;
     margin: 0px;
     border-top: none;
     border-left: none;
     border-right: none;
+    padding: 5px;
+}
+
+.site-caption {
+    font-weight: normal;
+    font-style: italic;
 }
 
 .site-hidden .site-button {
