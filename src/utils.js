@@ -92,8 +92,6 @@ const matchers = {
     }
 }
 
-console.log(matchers);
-console.log(matchers.method('domain'));
 
 /*
 const matchers = {

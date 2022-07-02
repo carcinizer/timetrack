@@ -118,10 +118,11 @@ function addElements(root, obj) {
 }
 
 
-function button({cls, properties, children}, f) {
+function button({cls, id, properties, children}, f) {
     return {
         type: 'button',
         cls: cls,
+        id: id,
         properties: merge({type: 'button', onclick: f}, properties),
         children: children
     }
@@ -176,7 +177,7 @@ function select({cls, properties}, choices, {value, setter}) {
 }
 
 function tooltip(text, element) {
-    let elem = element ? element : button({cls: ['tooltip-container'], children: ["?"]});
+    let elem = element ? element : button({cls: ['tooltip-container', 'unclickable'], children: ["?"]});
     elem.children.push( [span('tooltip', [text])] )
     return elem;
 }

@@ -11,7 +11,7 @@ body {
     color: #f1eff5;
 }
 
-input, button, select, .tooltip {
+input, button, select, .tooltip, .site-to-track {
     border-width: 1px;
     border-style: solid;
     border-radius: 6px;
@@ -30,11 +30,11 @@ button, .group-buttons {
     justify-content: center;
 }
 
-input:hover, button:hover, select:hover, .tooltip-container:active {
+input:hover, button:hover, button:hover div, button:hover span, select:hover, .unclickable:active {
     background: #3B3A43;
 }
 
-input:active, button:active {
+input:active, button:active, button:active div, button:active span {
     background: #1B1A23;
 }
 
@@ -45,16 +45,20 @@ input:disabled, button:disabled, select:disabled {
 input[type=checkbox] {
 }
 
-.line {
+.line, .line-full {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 6px;
 }
 
+.line-full, .site-options {
+    width: 100%;
+}
+
 .site-data {
+    flex: 1;
     height: 25px;
-    width: 142px;
 }
 
 .groupname {
@@ -75,6 +79,7 @@ input[type=checkbox] {
 }
 
 .remove {
+    flex: 0 25px;
     width: 25px;
 }
 
@@ -136,7 +141,6 @@ input[type=checkbox] {
 
 .group-time, .group-time-remaining, .group-limit, .group-extra-time, .group-sub {
     position: absolute;
-    /*color: #77778b;*/
     opacity: 0.5;
     font-size: 10px;
     z-index: 1;
@@ -178,6 +182,32 @@ input[type=checkbox] {
 }
 .group-progress-expired {
     background: #FF000022;
+}
+
+.site-to-track {
+    width: 100%;
+    height: auto;
+    margin: 3px;
+}
+
+.site-button {
+    margin: 0px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+}
+
+.site-hidden .site-button {
+    border-bottom: none;
+}
+
+
+.site-to-track.site-hidden .site-on-show, .site-to-track .site-on-hide {
+    display: none;
+}
+
+.site-to-track.site-hidden .site-on-hide, .site-to-track .site-on-show {
+    display: block;
 }
 
 .pause {

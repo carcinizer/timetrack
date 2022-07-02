@@ -191,17 +191,7 @@ function groupOptions(g,id) { return [
 
 function groupSites(g,id) { return [
 
-    ...g.site_order.map(sid => div('line', [
-        select({}, matchers.item, valueFromSite(g,id,sid, 'item', ensureExistingMethod)),
-        select({}, matchers.method(g.sites[sid].item), valueFromSite(g,id,sid, 'method')),
-        textInput(
-            cls.site_data(match_items[g.sites[sid].item].show_methods), 
-            valueFromSite(g,id,sid, 'data')
-        ),
-        button(cls.remove, () => 
-            withGroup(id,g => {removeSite(g,sid)})
-        )
-    ])),
+    ...g.site_order.map(sid => groupSite(g,id,g.sites[sid],sid)),
     button(cls.add, async () => {
         withActiveTab(tab => {
             withGroup(id, g => {
@@ -211,6 +201,51 @@ function groupSites(g,id) { return [
     }) 
 ]}
 
+
+let sitesShown = new Set();
+
+function groupSite(g,id,site,sid) {
+
+    let method_select = select({}, matchers.method(site.item), valueFromSite(g,id,sid, 'method'));
+    let show_methods = match_items[site.item].show_methods;
+    let div_id = `site-${sid}`;
+
+    return div({cls: ['site-to-track', ...(sitesShown.has(sid) ? [] : ['site-hidden'])], id: div_id}, [
+        button(
+            {
+                cls: ['site-button', 'line-full'], 
+                children: [div('line-full', [
+                    span('site-caption',[`todo`]),
+                    span('site-on-show',[`▲`]),
+                    span('site-on-hide',[`▼`])
+                ])]
+            }, 
+            () => {
+                let div = document.getElementById(div_id);
+                if(div.classList.toggle('site-hidden')) {
+                    sitesShown.delete(sid);
+                }
+                else {
+                    sitesShown.add(sid);
+                }
+        }),
+        div({cls: ['site-on-show', 'site-options']}, [
+            div('line-full', [div({},[
+                select({}, matchers.item, valueFromSite(g,id,sid, 'item', ensureExistingMethod)),
+                ...(show_methods ? [method_select] : [div({},[])])
+            ])]),
+            div('line-full', [
+                ...(show_methods ? [textInput(
+                    cls.site_data(match_items[site.item].show_methods), 
+                    valueFromSite(g,id,sid, 'data')
+                )] : [div({},[])]),
+                button(cls.remove, () => 
+                    withGroup(id,g => {removeSite(g,sid)})
+                )
+            ])
+        ])
+    ])
+}
 
 
 function clean() {
