@@ -192,7 +192,7 @@ function groupOptions(g,id) { return [
 function groupSites(g,id) { return [
 
     ...g.site_order.map(sid => groupSite(g,id,g.sites[sid],sid)),
-    button(cls.add, async () => {
+    button(cls.add_site(), async () => {
         withActiveTab(tab => {
             withGroup(id, g => {
                 addSite(g, tab.url);

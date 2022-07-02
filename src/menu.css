@@ -77,11 +77,6 @@ input[type=checkbox] {
     width: 25px;
 }
 
-.add {
-    width: 25px;
-    margin: 2px 4px;
-}
-
 .remove {
     flex: 0 25px;
     width: 25px;
@@ -191,7 +186,8 @@ input[type=checkbox] {
 .site-to-track {
     width: 100%;
     height: auto;
-    margin: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 .site-button {
@@ -201,6 +197,12 @@ input[type=checkbox] {
     border-left: none;
     border-right: none;
     padding: 5px;
+}
+
+.add-site {
+    /* Hack - button not aligned well with the rest by default for some reason */
+    position: relative;
+    left: -2px;
 }
 
 .site-caption {

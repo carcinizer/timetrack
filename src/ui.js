@@ -22,10 +22,10 @@ const cls = {
         cls: ["removegroup"]
     },
 
-    add: {
-        children: ["+"],
-        cls: ["add"]
-    },
+    add_site() {return {
+        children: ["+", span('group-sub', ["Add current site"])],
+        cls: ["add-site", "site-to-track"]
+    }},
 
     resettime: {
         children: ["Reset time"],
