@@ -69,6 +69,15 @@ const match_items = {
             return tab.url;
         }
     },
+    title: {
+        name: "Title",
+        methods: match_item_methods,
+        show_methods: true,
+        description: common_item_description,
+        get(tab) {
+            return tab.title;
+        }
+    },
     any: {
         name: "Any site",
         methods: {any: {name: '---', method(item, entry) {return true}}},
