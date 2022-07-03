@@ -96,14 +96,18 @@ function* getAssociatedGroupIDs(tab, data, condition) {
 
 class BackgroundState {
     constructor(test) {
+        this.init(test)
+    }
+
+    async init(test) {
 
         this.now = test ? () => 0 : Date.now;
 
-        this.saveData = test ? () => {return this} : () => {saveData(this.data); return this}
+        this.saveData = test ? async () => {return this} : async () => {await saveData(this.data); return this}
 
         this.last_update_time = this.now();
         this.last_update_active = false;
-        this.updateTabs();
+        await this.updateTabs();
 
         withData(d => {
             this.data = test ? newData() : d; 
@@ -115,42 +119,40 @@ class BackgroundState {
         chrome.tabs.onActivated.addListener(() => {this.update()})
         chrome.tabs.onUpdated.addListener(() => {this.update()})
         chrome.tabs.onRemoved.addListener(() => {this.update()})
-        chrome.runtime.onMessage.addListener((msg,s,sr) => {this.onMessage(msg,s,sr)})
+        browser.runtime.onMessage.addListener(async (msg,s,sr) => {return await this.onMessage(msg,s,sr)})
         setInterval(() => {this.update()}, 30000);
     }
 
-    updateTabs(callback_after_opt) {
-        let callback_after = callback_after_opt ? callback_after_opt : () => {};
-        let promise = browser.tabs.query({active: true});
-        promise.then(x => {
-            this.tabs = new Set(x);
-            let promise = browser.tabs.query({audible: true});
-            promise.then(x => {this.playing_tabs = new Set(x); callback_after()});
+    async updateTabs() {
+        let active_tabs = await browser.tabs.query({active: true});
+        this.tabs = new Set(active_tabs);
 
-        });
+        let playing_tabs = await browser.tabs.query({audible: true});
+        this.playing_tabs = new Set(playing_tabs);
 
         return this
     }
 
-    update() {
-        return this
-            .timePassed()
-            .updateTabs(() => {
-                this.rewind()
-                .timePassed() // Once again to get max time fractions for currently active tabs
-                .saveData()
-                .updateIcon();
-            })
+    async update() {
+        this.timePassed();
+        await this.updateTabs();
+        this.rewind();
+        this.timePassed(); // Once again to get max time fractions for currently active tabs
+        await this.saveData();
+        this.updateIcon();
     }
 
-    onMessage({type, content}, sender, sendResponse) {
+    async onMessage({type, content}, sender, sendResponse) {
         let state = this;
         const messages = {
             updateTimes() {
             },
             updateGroupSettings({id, groupdata}) {
                 let group = state.data.groups[id];
-                if(group) {groupdata.time = state.data.groups[id].time}
+                if(group) {
+                    groupdata.time = state.data.groups[id].time
+                    groupdata.extra_time = state.data.groups[id].extra_time
+                }
                 state.data.groups[id] = groupdata;
 
                 if(!state.data.group_order.includes(id)) {
@@ -198,7 +200,7 @@ class BackgroundState {
         }
 
         let obj = messages[type](content);
-        state.update()
+        await state.update()
         sendResponse(obj)
     }
 

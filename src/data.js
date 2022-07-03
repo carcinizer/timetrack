@@ -80,8 +80,8 @@ function withData(f) {
     })
 }
 
-function saveData(data) {
-    chrome.storage[loc].set(data)
+async function saveData(data) {
+    await browser.storage[loc].set(data)
 }
 
 function adaptData(data, noexceptions) {
