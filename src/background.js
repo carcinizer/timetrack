@@ -119,6 +119,7 @@ class BackgroundState {
         chrome.tabs.onActivated.addListener(() => {this.update()})
         chrome.tabs.onUpdated.addListener(() => {this.update()})
         chrome.tabs.onRemoved.addListener(() => {this.update()})
+        chrome.windows.onFocusChanged.addListener(() => {this.update()})
         browser.runtime.onMessage.addListener(async (msg,s,sr) => {return await this.onMessage(msg,s,sr)})
         setInterval(() => {this.update()}, 30000);
     }
@@ -129,6 +130,10 @@ class BackgroundState {
 
         let playing_tabs = await browser.tabs.query({audible: true});
         this.playing_tabs = new Set(playing_tabs);
+
+        this.focused_window = await browser.windows.getLastFocused();
+        if(!this.focused_window.focused)
+            this.focused_window = null;
 
         return this
     }
@@ -221,10 +226,14 @@ class BackgroundState {
 
     tabTimePassed(tab, time, condition) {
         let matcher = match(tab);
+        let tab_focused = this.focused_window && this.focused_window.id == tab.windowId;
 
         for (let gid of getAssociatedGroupIDs(tab, this.data, condition)) {
             const group = this.data.groups[gid];
 
+            if(group.dont_track_unfocused_window && !tab_focused) {
+                continue;
+            }
 
             if(this._done_groups.has(gid)) {continue}
             this._done_groups.add(gid);
