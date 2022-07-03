@@ -77,7 +77,7 @@ function updateIcon(timefraction_current, timefraction_max, paused) {
     browser.browserAction.setIcon({imageData: icon_ctx.getImageData(0,0,32,32)});
 }
 
-function* getAssociatedGroupIDs(tab, data) {
+function* getAssociatedGroupIDs(tab, data, condition) {
 
     const matcher = match(tab);
 
@@ -85,7 +85,7 @@ function* getAssociatedGroupIDs(tab, data) {
         const group = data.groups[gid];
 
         for (let s in group.sites) {
-            if(matcher(group.sites[s])) {
+            if((condition === undefined || group[condition]) && matcher(group.sites[s])) {
                 yield gid;
                 break;
             }
@@ -122,7 +122,13 @@ class BackgroundState {
     updateTabs(callback_after_opt) {
         let callback_after = callback_after_opt ? callback_after_opt : () => {};
         let promise = browser.tabs.query({active: true});
-        promise.then(x => {this.tabs = new Set(x); callback_after()});
+        promise.then(x => {
+            this.tabs = new Set(x);
+            let promise = browser.tabs.query({audible: true});
+            promise.then(x => {this.playing_tabs = new Set(x); callback_after()});
+
+        });
+
         return this
     }
 
@@ -203,18 +209,20 @@ class BackgroundState {
         this._done_groups = new Set();
         this.max_timefrac_active = null;
 
-        this.tabs.forEach(x => this.tabTimePassed(x,time));
+        this.tabs.forEach(x => this.tabTimePassed(x,time, 'track_active'));
+        this.playing_tabs.forEach(x => this.tabTimePassed(x,time, 'track_playing'));
 
         this.last_update_time = this.now();
 
         return this
     }
 
-    tabTimePassed(tab, time) {
+    tabTimePassed(tab, time, condition) {
         let matcher = match(tab);
 
-        for (let gid of getAssociatedGroupIDs(tab, this.data)) {
+        for (let gid of getAssociatedGroupIDs(tab, this.data, condition)) {
             const group = this.data.groups[gid];
+
 
             if(this._done_groups.has(gid)) {continue}
             this._done_groups.add(gid);
