@@ -43,6 +43,25 @@ const match_item_methods = {
         method(item, entry) {
             return item == entry.data
         }
+    },
+    doesnt_have: {
+        name: "doesn't contain",
+        method(item, entry) {
+            return !item.includes(entry.data)
+        }
+    },
+    isnt: {
+        name: "isn't",
+        method(item, entry) {
+            return item != entry.data
+        }
+    },
+    regexp: {
+        name: "satisfies regex",
+        method(item, entry) {
+            let regexp = new RegExp(entry.data)
+            return regexp.test(item)
+        }
     }
 };
 
