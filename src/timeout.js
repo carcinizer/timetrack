@@ -21,12 +21,10 @@ if(!running) {
     const blocker_query = () => document.getElementById('timetrack-timeout-blocker');
 
     function block() {
-        blocker_query().hidden = false;
         document.body.setAttribute('timetrack_block_scrolling', true);
     }
 
     function unblock(send) {
-        blocker_query().hidden = true;
         document.body.removeAttribute('timetrack_block_scrolling');
         if(send) {
             browser.runtime.sendMessage({
