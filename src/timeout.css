@@ -1,5 +1,5 @@
 
-.timetrack-timeout-blocker {
+#timetrack-timeout-blocker {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -24,6 +24,11 @@
     color: white;
     opacity: 1.0;
     font-size: 80px;
+    padding-bottom: 150px;
+}
+
+body[timetrack_block_scrolling] {
+    overflow: hidden;
 }
 
 #timetrack-timeout-more {
