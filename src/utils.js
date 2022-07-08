@@ -13,16 +13,6 @@ function getPastResetDate() {
     return d.getTime();
 }
 
-function merge(ret, add) {
-    try {
-        for(let k in add) {
-            ret[k] = add[k]
-        }
-    }
-    catch(x) {}
-    return ret;
-}
-
 function mapObj(obj, f) {
     let a = {};
     for (let i in obj) {
@@ -159,4 +149,4 @@ const matchers = {
     }
 }
 
-export {dayDuration, getPastResetDate, merge, match, match_items, matchers};
+export {dayDuration, getPastResetDate, match, match_items, matchers};

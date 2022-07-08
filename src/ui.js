@@ -1,5 +1,4 @@
 
-import {merge} from './utils.js'
 
 // Common classes/values for widgets
 const cls = {
@@ -98,16 +97,14 @@ function addElements(root, obj) {
     let elem = document.createElement(obj.type);
     obj.cls?.forEach(cls => elem.classList.add(cls));
 
-    merge(elem, obj.properties)
+    Object.assign(elem, obj.properties)
     for(let k in obj.eproperties) {
         elem[k] = obj.eproperties[k](elem);
     }
 
     obj.children?.forEach(child => addElements(elem, child));
 
-    if(obj.style) {
-        merge(elem.style, obj.style)
-    }
+    Object.assign(elem.style, obj.style)
 
     elem.id = obj.id;
 
@@ -115,27 +112,22 @@ function addElements(root, obj) {
 }
 
 
-function button({cls, id, properties, children}, f) {
-    return {
+function button(obj, f) {
+    return Object.assign(obj, {
         type: 'button',
-        cls: cls,
-        id: id,
-        properties: merge({type: 'button', onclick: f}, properties),
-        children: children
-    }
+        properties: Object.assign({type: 'button', onclick: f}, obj.properties),
+    })
 }
 
-function textInput({cls, properties, children}, {value, setter}) {
-    return {
+function textInput(obj, {value, setter}) {
+    return Object.assign(obj, {
         type: 'input',
-        cls: cls,
         properties: {type: 'text', value: value},
         eproperties: {onchange: (e) => () => {setter(e.value)}},
-        children: children
-    }
+    })
 }
 
-function checkbox({cls, properties}, label, {value, setter}) {
+function checkbox(_unused, label, {value, setter}) {
     return div('same-line', [
         button(
             {cls: value ? ["checkbox", "enabled"] : ["checkbox"]}, 
@@ -145,7 +137,7 @@ function checkbox({cls, properties}, label, {value, setter}) {
     ])
 }
 
-function select({cls, properties}, choices, {value, setter}) {
+function select(obj, choices, {value, setter}) {
 
     let options = [];
     for (let i in choices) {
@@ -156,19 +148,16 @@ function select({cls, properties}, choices, {value, setter}) {
         })
     }
 
-    return {
+    return Object.assign(obj, {
         type: 'select',
-        cls: cls,
-        properties: properties,
         eproperties: {onchange: e => () => {setter(e.value)}},
         children: options
-    }
+    })
 }
 
-function tooltip(text, element) {
-    let elem = element ? element : button({cls: ['tooltip-container', 'unclickable'], children: ["?"]});
-    elem.children.push( [span('tooltip', [text])] )
-    return elem;
+function tooltip(text, element = button({cls: ['tooltip-container', 'unclickable'], children: ["?"]})) {
+    element.children.push( [span('tooltip', [text])] )
+    return element;
 }
 
 const simpleGroup = name => (p, children) => {
@@ -179,7 +168,7 @@ const simpleGroup = name => (p, children) => {
         return {type: name, cls: [p], children: children}
     }
 
-    return merge({type: name, children: children}, p)
+    return Object.assign({type: name, children: children}, p)
 }
 
 const div = simpleGroup('div');
