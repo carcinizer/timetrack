@@ -1,4 +1,4 @@
-import {withData, newGroup} from './data.js';
+import {withData, newGroup, newSite} from './data.js';
 import {getPastResetDate, dayDuration, matchers, match_items} from './utils.js';
 import {
     cls, 
@@ -312,14 +312,10 @@ function updateGroup(id, groupdata, callback_after) {
 }
 
 
-function addSite(group, string) {
+function addSite(group, url) {
     let id = Date.now()
-    group.sites[id] = {
-        item: "domain",
-        method: "has",
-        data: string
-    };
-    group.site_order.push(id);
+    group.sites[id] = newSite(url)
+    group.site_order.push(id)
 }
 
 function removeGroup(id) {

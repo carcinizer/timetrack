@@ -25,6 +25,7 @@
 //  data: String
 //  item: String
 //  navigated_from: bool
+//  exclude_internal_sites: bool
 //
 // BackgroundState:
 //  data: DataProxy
@@ -36,7 +37,7 @@
 
 const loc = "sync"; // "local" or "sync"
 
-const DATA_VERSION = 7;
+const DATA_VERSION = 8;
 
 function newGroup() {
     return {
@@ -63,12 +64,13 @@ function newData() {
     }
 }
 
-function newSite() {
+function newSite(data='') {
     return {
-        data: '',
+        data: data,
         method: 'has',
         item: 'url',
-        navigated_from: false
+        navigated_from: false,
+        exclude_internal_sites: true
     }
 }
 
@@ -164,5 +166,5 @@ function* sitesIn(data) {
 }
 
 
-export {withData, saveData, newData, newGroup, adaptData};
+export {withData, saveData, newData, newGroup, newSite, adaptData};
 

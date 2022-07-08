@@ -120,16 +120,21 @@ const match_items = {
     },
     any: {
         name: "Any site",
-        methods: {any: {name: '---', method(item, entry) {return true}}},
+        methods: {any: {
+            method(item, entry) {
+                return !entry.exclude_internal_sites || item.startsWith('about:')
+            }
+        }},
         description: (site) => ["Any site"],
         configuration(site, {getsetValue, removeSiteFunc}) {
             return [div('line-full', [
                 select({}, matchers.item, getsetValue('item', ensureExistingMethod)),
+                checkbox({}, "Exclude about:* sites", getsetValue('exclude_internal_sites')),
                 button(cls.remove, removeSiteFunc)
             ])]
         },
         get(tab) {
-            return true
+            return tab.url;
         }
     }
 };
