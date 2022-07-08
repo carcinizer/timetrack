@@ -209,16 +209,16 @@ let sitesShown = new Set();
 
 function groupSite(g,id,site,sid) {
 
-    let method_select = select({}, matchers.method(site.item), valueFromSite(g,id,sid, 'method'));
-    let show_methods = match_items[site.item].show_methods;
+    const item = match_items[site.item];
     let div_id = `site-${sid}`;
+
 
     return div({cls: ['site-to-track', ...(sitesShown.has(sid) ? [] : ['site-hidden'])], id: div_id}, [
         button(
             {
                 cls: ['site-button', 'line-full'], 
                 children: [div('line-full', [
-                    span('site-caption', match_items[site.item].description(site)),
+                    span('site-caption', item.description(site)),
                     span({cls: ['site-on-show', 'dimmed']},[`▲`]),
                     span({cls: ['site-on-hide', 'dimmed']},[`▼`])
                 ])]
@@ -232,21 +232,13 @@ function groupSite(g,id,site,sid) {
                     sitesShown.add(sid);
                 }
         }),
-        div({cls: ['site-on-show', 'site-options']}, [
-            div('line-full', [div({},[
-                select({}, matchers.item, valueFromSite(g,id,sid, 'item', ensureExistingMethod)),
-                ...(show_methods ? [method_select] : [div({},[])])
-            ])]),
-            div('line-full', [
-                ...(show_methods ? [textInput(
-                    cls.site_data(match_items[site.item].show_methods), 
-                    valueFromSite(g,id,sid, 'data')
-                )] : [div({},[])]),
-                button(cls.remove, () => 
-                    withGroup(id,g => {removeSite(g,sid)})
-                )
-            ])
-        ])
+        div({cls: ['site-on-show', 'site-options']}, item.configuration(
+            site,
+            {
+                getsetValue: (val, f) => valueFromSite(g,id,sid, val, f),
+                removeSiteFunc: () => withGroup(id, g => removeSite(g,sid)),
+            })
+        )
     ])
 }
 
@@ -328,14 +320,6 @@ function addSite(group, string) {
         data: string
     };
     group.site_order.push(id);
-}
-
-function ensureExistingMethod(site) {
-    if(!(site.method in matchers.method(site.item))) {
-        for(let i in matchers.method(site.item)) {
-            site.method = i; break;
-        }
-    }
 }
 
 function removeGroup(id) {

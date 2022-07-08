@@ -48,11 +48,8 @@ const cls = {
             cls: ["pause"]
     }},
 
-    site_data: enabled => {
-        return {
-            cls: ["site-data"],
-            properties: {disabled: !enabled}
-        }
+    site_data: {
+        cls: ["site-data"]
     }
 }
 
