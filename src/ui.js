@@ -106,21 +106,21 @@ function addElements(root, obj) {
 
     Object.assign(elem.style, obj.style)
 
-    elem.id = obj.id;
+    if(obj.id) elem.id = obj.id;
 
     root.append(elem);
 }
 
 
 function button(obj, f) {
-    return Object.assign(obj, {
+    return Object.assign({}, obj, {
         type: 'button',
         properties: Object.assign({type: 'button', onclick: f}, obj.properties),
     })
 }
 
 function textInput(obj, {value, setter}) {
-    return Object.assign(obj, {
+    return Object.assign({}, obj, {
         type: 'input',
         properties: {type: 'text', value: value},
         eproperties: {onchange: (e) => () => {setter(e.value)}},
@@ -148,7 +148,7 @@ function select(obj, choices, {value, setter}) {
         })
     }
 
-    return Object.assign(obj, {
+    return Object.assign({}, obj, {
         type: 'select',
         eproperties: {onchange: e => () => {setter(e.value)}},
         children: options

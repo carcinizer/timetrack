@@ -209,9 +209,8 @@ let sitesShown = new Set();
 
 function groupSite(g,id,site,sid) {
 
-    const item = match_items[site.item];
+    let item = match_items[site.item];
     let div_id = `site-${sid}`;
-
 
     return div({cls: ['site-to-track', ...(sitesShown.has(sid) ? [] : ['site-hidden'])], id: div_id}, [
         button(
