@@ -68,7 +68,7 @@ function newSite(data='') {
     return {
         data: data,
         method: 'has',
-        item: 'url',
+        item: 'domain',
         navigated_from: false,
         exclude_internal_sites: true
     }
