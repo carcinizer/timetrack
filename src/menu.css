@@ -240,10 +240,12 @@ input:disabled, button:disabled, select:disabled {
 .site-button {
     height: 30px;
     margin: 0px;
-    border-top: none;
-    border-left: none;
-    border-right: none;
+    border: none;
     padding: 5px;
+}
+
+.site-button * {
+    background: #00000000 !important;
 }
 
 .add-site {
@@ -257,8 +259,12 @@ input:disabled, button:disabled, select:disabled {
     font-style: italic;
 }
 
-.site-hidden .site-button {
-    border-bottom: none;
+.site-to-track:not(.site-hidden) .site-button:hover {
+    background-image: linear-gradient(#3B3A43, #2B2A33);
+}
+
+.site-to-track:not(.site-hidden) .site-button:active {
+    background-image: linear-gradient(#1B1A23, #2B2A33) !important;
 }
 
 
