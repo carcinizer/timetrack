@@ -155,6 +155,12 @@ function select(obj, choices, {value, setter}) {
     })
 }
 
+function dropTarget(no) {
+    return div('drop-target-container', [
+        div({cls: ['drop-target'], properties: {drop_no: no}}, [])
+    ])
+}
+
 function tooltip(text, element = button({cls: ['tooltip-container', 'unclickable'], children: ["?"]})) {
     element.children.push( [span('tooltip', [text])] )
     return element;
@@ -190,5 +196,6 @@ export {
     h3,
     checkbox,
     tooltip,
-    select
+    select,
+    dropTarget
 };

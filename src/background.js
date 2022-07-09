@@ -168,6 +168,10 @@ class BackgroundState {
                 delete state.data.groups[id];
                 state.data.group_order = state.data.group_order.filter(x=>x!=id);
             },
+            moveGroup({old_no, new_no}) {
+                let [id] = state.data.group_order.splice(old_no, 1);
+                state.data.group_order.splice(new_no, 0, id);
+            },
             getData() {
                 return state.data;
             },

@@ -13,7 +13,8 @@ import {
     h3,
     checkbox,
     tooltip,
-    select
+    select,
+    dropTarget
 } from './ui.js';
 
 
@@ -26,6 +27,11 @@ let wantToExport = false;
 function listGroups() {
 
     updateWarning();
+
+    dragging_function = (old_no, new_no) => {
+        browser.runtime.sendMessage({type: "moveGroup", content: {old_no: old_no, new_no: new_no}})
+            .then(listGroups);
+    }
 
     withData((data) => {
         clean();
@@ -42,7 +48,7 @@ function listGroups() {
             h1(['Groups:']),
 
             div('group-buttons', [
-                ...go.map(gid => {
+                ...go.map((gid, n) => {
                     const g = data.groups[gid];
 
                     let timestatus = g.time > g.limit ? "expired" :
@@ -70,15 +76,17 @@ function listGroups() {
                         document.getElementById(progress_id).style.width = `${Math.min(g.time / g.limit, 1) * 100}%`
                     })
 
-                    return button({cls: ['group-button'], children: button_intetiors}, () => listGroup(gid));
+                    return [
+                        dropTarget(n),
+                        button({cls: ['group-button'], properties: {draggable: true, drag_no: n}, children: button_intetiors}, () => listGroup(gid)),
+                    ];
                 }),
+                dropTarget(go.length),
                 button({cls: ['group-button'], children: [
                     span('group-name', ['+']),
                     span('group-sub', ['Click to add'])
                 ]}, addGroup)
             ]),
-            
-
         ])
     });
 }
@@ -380,7 +388,36 @@ function updateWarning() {
 }
 
 
+let dragging_function = null;
+
+function drag(ev) {
+    ev.dataTransfer.setData('old', ev.target.drag_no);
+    document.body.setAttribute('showdroptargets', true);
+}
+
+function dragOver(ev) {
+    ev.preventDefault();
+}
+
+function drop(ev) {
+    document.body.removeAttribute('showdroptargets');
+
+    if(ev.target.className !== 'drop-target') return;
+    ev.preventDefault();
+
+    let old_no = ev.dataTransfer.getData('old');
+    
+    let new_no = ev.target.drop_no;
+    if(new_no > old_no) new_no--;
+
+    dragging_function(old_no, new_no);
+}
+
+
 
 listGroups();
 updateTimes();
+document.addEventListener('dragstart', drag);
+document.addEventListener('dragover', dragOver);
+document.addEventListener('drop', drop);
 setInterval(updateTimes, 500);

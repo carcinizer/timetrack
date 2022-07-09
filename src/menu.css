@@ -103,6 +103,10 @@ input:disabled, button:disabled, select:disabled {
     width: 100%;
 }
 
+.site-options {
+    padding: 4px;
+}
+
 .site-data {
     flex: 1;
     height: 25px;
@@ -319,6 +323,27 @@ input:disabled, button:disabled, select:disabled {
 .tooltip-container:hover .tooltip {
     visibility: visible;
     opacity: 1.0;
+}
+
+.drop-target-container {
+    position: relative;
+    height: 0px;
+    width: 95%;
+}
+
+.drop-target {
+    position: absolute;
+    width: 100%;
+    height: 14px;
+    top: -7px;
+    border-radius: 4px;
+    background: #555555AA;
+    z-index: 5;
+    visibility: hidden;
+}
+
+[showdroptargets] .drop-target {
+    visibility: visible;
 }
 
 #global_root {
