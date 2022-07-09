@@ -157,6 +157,7 @@ class BackgroundState {
                 if(group) {
                     groupdata.time = state.data.groups[id].time
                     groupdata.extra_time = state.data.groups[id].extra_time
+                    groupdata.active_now = state.data.groups[id].active_now
                 }
                 state.data.groups[id] = groupdata;
 
@@ -224,6 +225,10 @@ class BackgroundState {
         this._done_groups = new Set();
         this.max_timefrac_active = null;
 
+        for (let gid of this.data.group_order) {
+            this.data.groups[gid].active_now = false;
+        }
+
         this.tabs.forEach(x => this.tabTimePassed(x,time, 'track_active'));
         this.playing_tabs.forEach(x => this.tabTimePassed(x,time, 'track_playing'));
 
@@ -245,6 +250,8 @@ class BackgroundState {
 
             if(this._done_groups.has(gid)) {continue}
             this._done_groups.add(gid);
+
+            this.data.groups[gid].active_now = true;
 
             if(!this.data.paused) {
                 group.time += time;

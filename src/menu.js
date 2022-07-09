@@ -78,7 +78,11 @@ function listGroups() {
 
                     return [
                         dropTarget(n),
-                        button({cls: ['group-button'], properties: {draggable: true, drag_no: n}, children: button_intetiors}, () => listGroup(gid)),
+                        button({
+                            cls: ['group-button', ...(g.active_now ? ['group-active'] : [])], 
+                            properties: {draggable: true, drag_no: n}, 
+                            children: button_intetiors
+                        }, () => listGroup(gid)),
                     ];
                 }),
                 dropTarget(go.length),
@@ -102,7 +106,6 @@ function listGroup(id, new_g) {
         let g = new_g ? new_g : data.groups[id];
 
         dragging_function = (old_no, new_no) => {
-            console.log(old_no, new_no)
             browser.runtime.sendMessage({type: "moveSite", content: {gid: id, old_no: old_no, new_no: new_no}})
                 .then(() => listGroup(id));
         }

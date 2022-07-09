@@ -42,6 +42,10 @@ input:disabled, button:disabled, select:disabled {
     color: #4B4A53;
 }
 
+button.group-active {
+    border-color: #2E89F2;
+}
+
 .dimmed {
     opacity: 0.6;
 }

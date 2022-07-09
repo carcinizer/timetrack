@@ -15,6 +15,7 @@
 //  time: int
 //  extra_time: int
 //  limit: int
+//  active_now: bool
 //  block_on_timeout: bool
 //  dont_track_unfocused_window: bool
 //  track_playing: bool
@@ -37,7 +38,7 @@
 
 const loc = "sync"; // "local" or "sync"
 
-const DATA_VERSION = 8;
+const DATA_VERSION = 9;
 
 function newGroup() {
     return {
@@ -47,6 +48,7 @@ function newGroup() {
         time: 0, 
         extra_time: 0,
         limit: 60*60*1000, 
+        active_now: false,
         block_on_timeout: false,
         dont_track_unfocused_window: true,
         track_playing: false,
