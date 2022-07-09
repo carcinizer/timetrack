@@ -172,6 +172,10 @@ class BackgroundState {
                 let [id] = state.data.group_order.splice(old_no, 1);
                 state.data.group_order.splice(new_no, 0, id);
             },
+            moveSite({gid, old_no, new_no}) {
+                let [id] = state.data.groups[gid].site_order.splice(old_no, 1);
+                state.data.groups[gid].site_order.splice(new_no, 0, id);
+            },
             getData() {
                 return state.data;
             },

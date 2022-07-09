@@ -101,6 +101,12 @@ function listGroup(id, new_g) {
         clean();
         let g = new_g ? new_g : data.groups[id];
 
+        dragging_function = (old_no, new_no) => {
+            console.log(old_no, new_no)
+            browser.runtime.sendMessage({type: "moveSite", content: {gid: id, old_no: old_no, new_no: new_no}})
+                .then(() => listGroup(id));
+        }
+
         addElements(table_root, [
             ...groupTopLine(g,id),
             ...groupTimeLine(g,id),
@@ -202,7 +208,8 @@ function groupOptions(g,id) { return [
 
 function groupSites(g,id) { return [
 
-    ...g.site_order.map(sid => groupSite(g,id,g.sites[sid],sid)),
+    g.site_order.map((sid,n) => [dropTarget(n), groupSite(g,id,g.sites[sid],sid,n)]),
+    dropTarget(g.site_order.length),
     button(cls.add_site(), async () => {
         withActiveTab(tab => {
             withGroup(id, g => {
@@ -215,7 +222,7 @@ function groupSites(g,id) { return [
 
 let sitesShown = new Set();
 
-function groupSite(g,id,site,sid) {
+function groupSite(g,id,site,sid,n) {
 
     let item = match_items[site.item];
     let div_id = `site-${sid}`;
@@ -224,6 +231,7 @@ function groupSite(g,id,site,sid) {
         button(
             {
                 cls: ['site-button', 'line-full'], 
+                properties: {draggable: true, drag_no: n},
                 children: [div('line-full', [
                     span('site-caption', item.description(site)),
                     span({cls: ['site-on-show', 'dimmed']},[`▲`]),
