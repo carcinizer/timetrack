@@ -22,13 +22,11 @@ function mapObj(obj, f) {
 }
 
 function ensureExisting(obj, collection) {
-    if(!(obj in collection)) {
-        for(let i in collection) {
-            obj = i; break;
-        }
-    }
+    if(obj in collection) return obj;
+    for(let i in collection) return i;
 }
-const ensureExistingMethod = site => ensureExisting(site.method, matchers.method(site.item));
+
+const ensureExistingMethod = site => {site.method = ensureExisting(site.method, matchers.method(site.item))};
 
 
 const match_item_methods = {
@@ -112,7 +110,7 @@ const match_items = {
         name: "Any site",
         methods: {any: {
             method(item, entry) {
-                return !entry.exclude_internal_sites || item.startsWith('about:')
+                return !entry.exclude_internal_sites || !item.startsWith('about:')
             }
         }},
         description: (site) => ["Any site"],

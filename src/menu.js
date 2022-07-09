@@ -258,13 +258,13 @@ function valueFromGroup(g, id, name) {
     }
 }
 
-function valueFromSite(g, id, sid, name, f) {
+function valueFromSite(g, id, sid, name, f=()=>{}) {
     return {
         value: g.sites[sid][name],
         setter(x) {
             withGroup(id, g => {
                 g.sites[sid][name] = x
-                if(f) f(g.sites[sid])
+                f(g.sites[sid])
             })
         }
     }
