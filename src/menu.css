@@ -354,6 +354,24 @@ button.group-active {
     background: #2E89F2;
 }
 
+.drag-indicator-left, .drag-indicator-right {
+    position: absolute;
+    opacity: 0.15;
+
+    display: flex;
+    justify-content: center;
+}
+
+.drag-indicator-left {
+    left: 15%;
+}
+
+.drag-indicator-right {
+    right: 15%;
+}
+
+
+
 #global_root {
     display: flex;
     flex-flow: column;

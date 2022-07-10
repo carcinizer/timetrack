@@ -67,7 +67,9 @@ function listGroups() {
                             cls: ['group-progress', 'group-progress-' + timestatus], 
                             id: progress_id,
                             style: {width: `${Math.min(g.time / g.limit, 1) * 100}%`}
-                        }, [])
+                        }, []),
+                        div('drag-indicator-left', ['☰']),
+                        div('drag-indicator-right', ['☰'])
                     ];
 
                     periodic_actions.push(data => {
@@ -235,11 +237,15 @@ function groupSite(g,id,site,sid,n) {
             {
                 cls: ['site-button', 'line-full'], 
                 properties: {draggable: true, drag_no: n},
-                children: [div('line-full', [
-                    span('site-caption', item.description(site)),
-                    span({cls: ['site-on-show', 'dimmed']},[`▲`]),
-                    span({cls: ['site-on-hide', 'dimmed']},[`▼`])
-                ])]
+                children: [
+                    div('line-full', [
+                        span('site-caption', item.description(site)),
+                        span({cls: ['site-on-show', 'dimmed']},[`▲`]),
+                        span({cls: ['site-on-hide', 'dimmed']},[`▼`])
+                    ]),
+                    div('drag-indicator-left', ['☰']),
+                    div('drag-indicator-right', ['☰'])
+                ]
             }, 
             () => {
                 let div = document.getElementById(div_id);
