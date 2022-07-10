@@ -350,6 +350,10 @@ button.group-active {
     visibility: visible;
 }
 
+.drop-target[targethover] {
+    background: #2E89F2;
+}
+
 #global_root {
     display: flex;
     flex-flow: column;

@@ -410,6 +410,18 @@ function dragOver(ev) {
     ev.preventDefault();
 }
 
+function dragEnter(ev) {
+    if(ev.target.className !== 'drop-target') return;
+    ev.preventDefault();
+    ev.target.setAttribute('targethover', true);
+}
+
+function dragLeave(ev) {
+    if(ev.target.className !== 'drop-target') return;
+    ev.preventDefault();
+    ev.target.removeAttribute('targethover');
+}
+
 function drop(ev) {
     document.body.removeAttribute('showdroptargets');
 
@@ -431,4 +443,6 @@ updateTimes();
 document.addEventListener('dragstart', drag);
 document.addEventListener('dragover', dragOver);
 document.addEventListener('drop', drop);
+document.addEventListener('dragenter', dragEnter);
+document.addEventListener('dragleave', dragLeave);
 setInterval(updateTimes, 500);
