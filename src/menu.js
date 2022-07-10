@@ -68,6 +68,7 @@ function listGroups() {
                             id: progress_id,
                             style: {width: `${Math.min(g.time / g.limit, 1) * 100}%`}
                         }, []),
+                        div('drag-target-dummy', []),
                         div('drag-indicator-left', ['☰']),
                         div('drag-indicator-right', ['☰'])
                     ];
@@ -243,6 +244,7 @@ function groupSite(g,id,site,sid,n) {
                         span({cls: ['site-on-show', 'dimmed']},[`▲`]),
                         span({cls: ['site-on-hide', 'dimmed']},[`▼`])
                     ]),
+                    div('drag-target-dummy', []),
                     div('drag-indicator-left', ['☰']),
                     div('drag-indicator-right', ['☰'])
                 ]
