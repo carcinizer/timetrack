@@ -246,6 +246,7 @@ button.group-active {
 }
 
 .site-button {
+    position: relative;
     height: 30px;
     margin: 0px;
     border: none;
