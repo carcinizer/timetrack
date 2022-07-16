@@ -12,6 +12,10 @@ if(!running) {
     h.innerText = "Time's up";
     h.className = "timetrack-timeout-content"
 
+    let overtime = document.createElement('span');
+    overtime.innerText = "";
+    overtime.className = "timetrack-timeout-overtime"
+
     let button = document.createElement('input')
     button.type = 'button';
     button.id = 'timetrack-timeout-more';
@@ -36,6 +40,7 @@ if(!running) {
 
 
     blocker.append(h);
+    blocker.append(overtime);
     blocker.append(button);
     document.body.appendChild(blocker)
     document.getElementById('timetrack-timeout-more').onclick = () => {unblock(true)}
@@ -44,6 +49,7 @@ if(!running) {
 
     browser.runtime.onMessage.addListener(({should_be_blocked, extra_time, max_extra_time}) => {
         button.disabled = extra_time >= max_extra_time;
+        overtime.innerText = extra_time ? `${extra_time/60/1000} minutes over the limit` : "";
         if(should_be_blocked) {block()} else {unblock(false)}
     })
 }

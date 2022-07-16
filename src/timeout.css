@@ -24,7 +24,13 @@
     color: white;
     opacity: 1.0;
     font-size: 80px;
-    padding-bottom: 150px;
+    padding-bottom: 50px;
+}
+
+.timetrack-timeout-overtime {
+    font-size: 20px;
+    color: #ff6469;
+    padding-bottom: 80px;
 }
 
 body[timetrack_block_scrolling] {
