@@ -42,7 +42,8 @@ if(!running) {
 
     block();
 
-    browser.runtime.onMessage.addListener(({should_be_blocked}) => {
+    browser.runtime.onMessage.addListener(({should_be_blocked, extra_time, max_extra_time}) => {
+        button.disabled = extra_time >= max_extra_time;
         if(should_be_blocked) {block()} else {unblock(false)}
     })
 }

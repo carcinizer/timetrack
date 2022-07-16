@@ -268,13 +268,21 @@ class BackgroundState {
         if(group.block_after_timeout && await browser.permissions.contains({origins: ["<all_urls>"]})) {
 
             let timeout = group.time > group.limit + group.extra_time;
+            let message = {
+                should_be_blocked: timeout, 
+                extra_time: group.extra_time, 
+                max_extra_time: group.max_extra_time
+            }
 
             // Check if content script exists for a given tab 
-            try {await browser.tabs.sendMessage(tab.id, {should_be_blocked: timeout})}
+            try {
+                await browser.tabs.sendMessage(tab.id, message)
+            }
             catch {  // Create it if doesn't exist and there's a timeout
                 if(timeout) {
                     await browser.tabs.insertCSS(tab.id, {file: "/src/timeout.css"})
                     await browser.tabs.executeScript(tab.id, {file: "/src/timeout.js"})
+                    await browser.tabs.sendMessage(tab.id, message)
                 }
             };
         }
