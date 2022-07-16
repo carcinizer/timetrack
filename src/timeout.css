@@ -11,13 +11,10 @@
     height: 100%;
     overflow: hidden;
     background-color: #2B2A33DD;
+    backdrop-filter: blur(20px);
     z-index: 99999999;
 
     display: none;
-}
-
-.timetrack-timeout-content-root {
-
 }
 
 .timetrack-timeout-content {
