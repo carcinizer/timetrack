@@ -234,8 +234,9 @@ button.group-active {
     background: #FF000022;
 }
 
-.timelimit {
-    flex: 1;
+.time-input, .timelimit {
+    width: 5em;
+    text-align: center;
 }
 
 .site-to-track {
@@ -377,6 +378,9 @@ button.group-active {
     height: 100%;
 }
 
+.small-margin {
+    margin-left: 10px;
+}
 
 #global_root {
     display: flex;

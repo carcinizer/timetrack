@@ -161,7 +161,8 @@ function dropTarget(no) {
     ])
 }
 
-function tooltip(text, element = button({cls: ['tooltip-container', 'unclickable'], children: ["?"]})) {
+function tooltip(text, extra_cls=[], element = button({cls: ['tooltip-container', 'unclickable'], children: ["?"]})) {
+    element.cls.push(...extra_cls);
     element.children.push( [span('tooltip', [text])] )
     return element;
 }

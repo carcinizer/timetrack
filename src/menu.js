@@ -18,11 +18,14 @@ import {
 } from './ui.js';
 
 
+
 let table_root = document.getElementById("table_root");
 let warning = document.getElementById("warning");
 let periodic_actions = [];
 
 let wantToExport = false;
+
+const TimeHMSConvert = {fromWidget: hmsToTime, toWidget: timeToHms}
 
 function listGroups() {
 
@@ -137,8 +140,6 @@ function aboutPage() {
             div('aboutlinks', [
                 {type: 'a', properties: {href: "https://github.com/carcinizer/timetrack"}, children: ["Github link"]}
             ]),
-            
-            
 
             div('line', [
                 button(cls.text("Import data..."), () => {
@@ -180,19 +181,16 @@ function groupTopLine(g,id) { return [
 ]}
 
 function groupTimeLine(g,id) { return [
-    div('line', [
-        "Limit: ",
-        textInput({cls: ['timelimit']}, {
-            value: timeToHms(g.limit),
-            setter: lim => withGroup(id, g => {
-
-                let newlimit = hmsToTime(lim, g.limit);
-                g.limit = newlimit; 
-                lim = newlimit;
-
-            })
-        })
-    ])
+    div('centered', [div('line', [
+        span({}, [   
+            span('small-margin', ['Limit:']),
+            textInput({cls: ['time-input']}, valueFromGroup(g,id,'limit', TimeHMSConvert)),
+        ]),
+        span({}, g.block_after_timeout ? [
+            span('small-margin', ['Max extra time:']),
+            textInput({cls: ['time-input']}, valueFromGroup(g,id,'max_extra_time', TimeHMSConvert))
+        ]: [])
+    ])])
 ]}
 
 function groupOptions(g,id) { return [
@@ -207,6 +205,9 @@ function groupOptions(g,id) { return [
         button(cls.removegroup, () => {removeGroup(id)})
     ]),
     checkbox({}, "Block after timeout", valueFromGroup(g,id, 'block_after_timeout')),
+    ...(g.block_after_timeout ? [
+        
+    ] : []),
     checkbox({}, "Don't track tabs in unfocused windows", valueFromGroup(g,id, 'dont_track_unfocused_window')),
     checkbox({}, "Track active tabs", valueFromGroup(g,id, 'track_active')),
     checkbox({}, "Track playing tabs", valueFromGroup(g,id, 'track_playing'))
@@ -276,11 +277,11 @@ function clean() {
     periodic_actions = [];
 }
 
-function valueFromGroup(g, id, name) {
+function valueFromGroup(g, id, name, funcs={fromWidget: x=>x, toWidget: x=>x}) {
     return {
-        value: g[name],
+        value: funcs.toWidget(g[name]),
         setter(x) {
-            withGroup(id, g => {g[name] = x})
+            withGroup(id, g => {g[name] = funcs.fromWidget(x)})
         }
     }
 }
