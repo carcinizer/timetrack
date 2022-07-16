@@ -257,17 +257,24 @@ class BackgroundState {
                 group.time += time;
             }
             
-            this.refreshContentScript(tab, group);
+            this.blockOnTimeout(tab, group);
 
             this.max_timefrac_active = Math.max(this.max_timefrac_active, group.time / group.limit);
         }
     }
 
-    async refreshContentScript(tab, group) {
+    async blockOnTimeout(tab, group) {
 
-        if(group.block_after_timeout && await browser.permissions.contains({origins: ["<all_urls>"]})) {
+        if(!group.block_after_timeout) return;
 
-            let timeout = group.time > group.limit + group.extra_time;
+        let timeout = group.time > group.limit + group.extra_time;
+
+        if(group.track_playing && timeout && !tab.muted) {
+            browser.tabs.update(tab.id, {muted: true});
+        }
+
+        if(group.track_active && await browser.permissions.contains({origins: ["<all_urls>"]})) {
+
             let message = {
                 should_be_blocked: timeout, 
                 extra_time: group.extra_time, 

@@ -204,13 +204,13 @@ function groupOptions(g,id) { return [
 
         button(cls.removegroup, () => {removeGroup(id)})
     ]),
-    checkbox({}, "Block after timeout", valueFromGroup(g,id, 'block_after_timeout')),
-    ...(g.block_after_timeout ? [
-        
-    ] : []),
     checkbox({}, "Don't track tabs in unfocused windows", valueFromGroup(g,id, 'dont_track_unfocused_window')),
     checkbox({}, "Track active tabs", valueFromGroup(g,id, 'track_active')),
-    checkbox({}, "Track playing tabs", valueFromGroup(g,id, 'track_playing'))
+    checkbox({}, "Track playing tabs", valueFromGroup(g,id, 'track_playing')),
+    div('same-line', [
+    checkbox({}, "Block after timeout", valueFromGroup(g,id, 'block_after_timeout')),
+    tooltip("When time's up, depending on tracking settings for active/playing tab, displays a blocking pop-up and/or mutes playing tabs"),
+    ]),
 ]}
 
 function groupSites(g,id) { return [
