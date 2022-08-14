@@ -269,14 +269,11 @@ class BackgroundState {
 
         let timeout = group.time > group.limit + group.extra_time;
 
-        if(group.track_playing && timeout && !tab.muted) {
-            browser.tabs.update(tab.id, {muted: true});
-        }
-
-        if(group.track_active && await browser.permissions.contains({origins: ["<all_urls>"]})) {
+        if(await browser.permissions.contains({origins: ["<all_urls>"]})) {
 
             let message = {
-                should_be_blocked: timeout, 
+                should_be_blocked: timeout && group.track_active, 
+                should_be_paused: timeout && (group.track_active || group.track_playing),
                 extra_time: group.extra_time, 
                 max_extra_time: group.max_extra_time
             }
@@ -287,8 +284,13 @@ class BackgroundState {
             }
             catch {  // Create it if doesn't exist and there's a timeout
                 if(timeout) {
-                    await browser.tabs.insertCSS(tab.id, {file: "/src/timeout.css"})
-                    await browser.tabs.executeScript(tab.id, {file: "/src/timeout.js"})
+                    if(group.track_active) {
+                        await browser.tabs.insertCSS(tab.id, {file: "/src/timeout.css"})
+                        await browser.tabs.executeScript(tab.id, {file: "/src/timeout.js"})
+                    }
+                    if(group.track_playing || group.track_active) {
+                        await browser.tabs.executeScript(tab.id, {file: "/src/timeoutplaying.js"})
+                    }
                     await browser.tabs.sendMessage(tab.id, message)
                 }
             };
