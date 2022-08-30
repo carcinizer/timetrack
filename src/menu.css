@@ -269,20 +269,20 @@ button.group-active {
     font-style: italic;
 }
 
-.site-to-track:not(.site-hidden) .site-button:hover {
+.expandable-root:not(.expandable-hidden) .site-button:hover {
     background-image: linear-gradient(#3B3A43, #2B2A33);
 }
 
-.site-to-track:not(.site-hidden) .site-button:active {
+.expandable-root:not(.expandable-hidden) .site-button:active {
     background-image: linear-gradient(#1B1A23, #2B2A33) !important;
 }
 
 
-.site-to-track.site-hidden .site-on-show, .site-to-track .site-on-hide {
+.expandable-root.expandable-hidden .expandable-on-show, .expandable-root .expandable-on-hide {
     display: none;
 }
 
-.site-to-track.site-hidden .site-on-hide, .site-to-track .site-on-show {
+.expandable-root.expandable-hidden .expandable-on-hide, .expandable-root .expandable-on-show {
     display: block;
 }
 

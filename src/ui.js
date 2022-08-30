@@ -167,6 +167,30 @@ function tooltip(text, extra_cls=[], element = button({cls: ['tooltip-container'
     return element;
 }
 
+let expandables_expanded = new Set();
+
+function expandable(id, {parent_cls=[], div_cls=[], button_obj={}, children=[]}) {
+
+    parent_cls.push('expandable-root')
+    if(!expandables_expanded.has(id)) {
+        parent_cls.push('expandable-hidden')
+    }
+
+    return div({id: id, cls: parent_cls}, [
+        button(button_obj, () => {
+            let div = document.getElementById(id);
+            if(div.classList.toggle('expandable-hidden')) {
+                expandables_expanded.delete(id);
+            }
+            else {
+                expandables_expanded.add(id);
+            }
+        }),
+        div({cls: ['expandable-on-show', ...div_cls]}, children)
+    ])
+}
+
+
 const simpleGroup = name => (p, children) => {
     if(children === undefined) {
         return {type: name, children: p}
@@ -184,6 +208,13 @@ const h1 = simpleGroup('h1');
 const h3 = simpleGroup('h3');
 
 
+const decos = {
+    expandable: [
+        span({cls: ['expandable-on-show', 'dimmed']},[`▲`]),
+        span({cls: ['expandable-on-hide', 'dimmed']},[`▼`])
+    ]
+}
+
 export {
     cls, 
     hmsToTime,
@@ -198,5 +229,7 @@ export {
     checkbox,
     tooltip,
     select,
-    dropTarget
+    dropTarget,
+    expandable,
+    decos
 };

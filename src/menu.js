@@ -14,7 +14,9 @@ import {
     checkbox,
     tooltip,
     select,
-    dropTarget
+    dropTarget,
+    expandable,
+    decos
 } from './ui.js';
 
 
@@ -232,41 +234,27 @@ let sitesShown = new Set();
 function groupSite(g,id,site,sid,n) {
 
     let item = match_items[site.item];
-    let div_id = `site-${sid}`;
 
-    return div({cls: ['site-to-track', ...(sitesShown.has(sid) ? [] : ['site-hidden'])], id: div_id}, [
-        button(
-            {
-                cls: ['site-button', 'line-full'], 
-                properties: {draggable: true, drag_no: n},
-                children: [
-                    div('line-full', [
-                        span('site-caption', item.description(site)),
-                        span({cls: ['site-on-show', 'dimmed']},[`▲`]),
-                        span({cls: ['site-on-hide', 'dimmed']},[`▼`])
-                    ]),
-                    div('drag-target-dummy', []),
-                    div('drag-indicator-left', ['☰']),
-                    div('drag-indicator-right', ['☰'])
-                ]
-            }, 
-            () => {
-                let div = document.getElementById(div_id);
-                if(div.classList.toggle('site-hidden')) {
-                    sitesShown.delete(sid);
-                }
-                else {
-                    sitesShown.add(sid);
-                }
-        }),
-        div({cls: ['site-on-show', 'site-options']}, item.configuration(
-            site,
-            {
-                getsetValue: (val, f) => valueFromSite(g,id,sid, val, f),
-                removeSiteFunc: () => withGroup(id, g => removeSite(g,sid)),
-            })
-        )
-    ])
+    return expandable(`site-${sid}`, {
+        parent_cls: ['site-to-track'],
+        button_obj: {
+            cls: ['site-button', 'line-full'], 
+            properties: {draggable: true, drag_no: n},
+            children: [
+                div('line-full', [
+                    span('site-caption', item.description(site)),
+                    ...decos.expandable 
+                ]),
+                div('drag-target-dummy', []),
+                div('drag-indicator-left', ['☰']),
+                div('drag-indicator-right', ['☰'])
+            ]
+        },
+        children: item.configuration(site, {
+            getsetValue: (val, f) => valueFromSite(g,id,sid, val, f),
+            removeSiteFunc: () => withGroup(id, g => removeSite(g,sid)),
+        })
+    })
 }
 
 
