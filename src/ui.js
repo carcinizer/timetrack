@@ -212,6 +212,11 @@ const decos = {
     expandable: [
         span({cls: ['expandable-on-show', 'dimmed']},[`▲`]),
         span({cls: ['expandable-on-hide', 'dimmed']},[`▼`])
+    ],
+    drag_target: [
+        div('drag-target-dummy', []), // Done to ensure the widget is draggable from any point
+        div('drag-indicator-left', ['☰']),
+        div('drag-indicator-right', ['☰'])
     ]
 }
 

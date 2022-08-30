@@ -73,9 +73,7 @@ function listGroups() {
                             id: progress_id,
                             style: {width: `${Math.min(g.time / g.limit, 1) * 100}%`}
                         }, []),
-                        div('drag-target-dummy', []),
-                        div('drag-indicator-left', ['☰']),
-                        div('drag-indicator-right', ['☰'])
+                        ...decos.drag_target
                     ];
 
                     periodic_actions.push(data => {
@@ -245,9 +243,7 @@ function groupSite(g,id,site,sid,n) {
                     span('site-caption', item.description(site)),
                     ...decos.expandable 
                 ]),
-                div('drag-target-dummy', []),
-                div('drag-indicator-left', ['☰']),
-                div('drag-indicator-right', ['☰'])
+                ...decos.drag_target
             ]
         },
         children: item.configuration(site, {
