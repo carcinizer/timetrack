@@ -208,8 +208,8 @@ function groupOptions(g,id) { return [
     checkbox({}, "Track active tabs", valueFromGroup(g,id, 'track_active')),
     checkbox({}, "Track playing tabs", valueFromGroup(g,id, 'track_playing')),
     div('same-line', [
-    checkbox({}, "Block after timeout", valueFromGroup(g,id, 'block_after_timeout')),
-    tooltip("When time's up, depending on tracking settings for active/playing tab, displays a blocking pop-up and/or mutes playing tabs"),
+        checkbox({}, "Block after timeout", valueFromGroup(g,id, 'block_after_timeout')),
+        tooltip("When time's up, depending on tracking settings for active/playing tab, displays a blocking pop-up and/or stops playing audio/video. Requires additional permissions."),
     ]),
 ]}
 
