@@ -16,6 +16,12 @@
 //  extra_time: int
 //  limit: int
 //  active_now: bool
+//  enabled: bool,
+//  enable_on_weekdays: [bool]
+//  enable_on_hours: bool,
+//  enable_on_hours_begin_ms: int,
+//  enable_on_hours_end_ms: int,
+//  enable_timezone: "local" | "UTC",
 //  block_on_timeout: bool
 //  dont_track_unfocused_window: bool
 //  track_playing: bool
