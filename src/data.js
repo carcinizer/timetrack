@@ -38,7 +38,7 @@
 
 const loc = "sync"; // "local" or "sync"
 
-const DATA_VERSION = 10;
+const DATA_VERSION = 11;
 
 function newGroup() {
     return {
@@ -49,6 +49,12 @@ function newGroup() {
         extra_time: 0,
         limit: 60*60*1000, 
         active_now: false,
+        enabled: true,
+        enable_on_weekdays: [true, true, true, true, true, true, true],
+        enable_on_hours: true,
+        enable_on_hours_begin_ms: 0,
+        enable_on_hours_end_ms: 24*60*60*1000,
+        enable_timezone: "local",
         block_on_timeout: false,
         dont_track_unfocused_window: true,
         track_playing: false,
