@@ -16,6 +16,7 @@ import {
     select,
     dropTarget,
     expandable,
+    popup,
     decos
 } from './ui.js';
 
@@ -202,7 +203,14 @@ function groupOptions(g,id) { return [
             tooltip("Automatic rewind occurs every day on 4:00 AM, by subtracting the limit from total time."),
         ]),
 
-        button(cls.removegroup, () => {removeGroup(id)})
+        button(cls.removegroup, () => popup(
+            span({}, [`Do you want to remove group ${g.name}?`]),
+            span({}, ["This operation is irreversible."]),
+            div('line', [
+                button({children: ["No"]}, () => listGroup(id)),
+                button({children: ["Yes"], cls: ['removegroup']}, () => removeGroup(id))
+            ])
+        ))
     ]),
     checkbox({}, "Don't track tabs in unfocused windows", valueFromGroup(g,id, 'dont_track_unfocused_window')),
     checkbox({}, "Track active tabs", valueFromGroup(g,id, 'track_active')),

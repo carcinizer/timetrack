@@ -190,6 +190,10 @@ function expandable(id, {parent_cls=[], div_cls=[], button_obj={}, children=[]})
     ])
 }
 
+function popup(...children) {
+    addElements(document.getElementById('table_root'), div("popup-background", [div("popup", children)]))
+}
+
 
 const simpleGroup = name => (p, children) => {
     if(children === undefined) {
@@ -236,5 +240,6 @@ export {
     select,
     dropTarget,
     expandable,
+    popup,
     decos
 };

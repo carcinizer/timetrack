@@ -11,7 +11,7 @@ body {
     color: #f1eff5;
 }
 
-input, button, select, .tooltip, .site-to-track {
+input, button, select, .tooltip, .site-to-track, .popup {
     border-width: 1px;
     border-style: solid;
     border-radius: 6px;
@@ -376,6 +376,40 @@ button.group-active {
     position: absolute;
     width: 100%;
     height: 100%;
+}
+
+.popup-background {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #2B2A3333;
+    backdrop-filter: blur(20px);
+    z-index: 99999999;
+}
+
+.popup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0;
+    text-align: center;
+    max-width: 90%;
+
+    padding: 10px;
+}
+
+.popup * {
+    text-align: center;
 }
 
 .small-margin {
