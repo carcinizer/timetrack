@@ -226,6 +226,16 @@ function groupOptions(g,id) { return [
         checkbox({}, "Block after timeout", valueFromGroup(g,id, 'block_after_timeout')),
         tooltip("When time's up, depending on tracking settings for active/playing tab, displays a blocking pop-up and/or stops playing audio/video. Requires additional permissions."),
     ]),
+
+    div({cls: ['border-group', 'same-line']}, [
+        checkbox('button', 'Mon', valueFromGroup1(g,id, 'enable_on_weekdays', 1)),
+        checkbox('button', 'Tue', valueFromGroup1(g,id, 'enable_on_weekdays', 2)),
+        checkbox('button', 'Wed', valueFromGroup1(g,id, 'enable_on_weekdays', 3)),
+        checkbox('button', 'Thu', valueFromGroup1(g,id, 'enable_on_weekdays', 4)),
+        checkbox('button', 'Fri', valueFromGroup1(g,id, 'enable_on_weekdays', 5)),
+        checkbox('button', 'Sat', valueFromGroup1(g,id, 'enable_on_weekdays', 6)),
+        checkbox('button', 'Sun', valueFromGroup1(g,id, 'enable_on_weekdays', 0)),
+    ])
 ]}
 
 function groupSites(g,id) { return [
@@ -281,6 +291,15 @@ function valueFromGroup(g, id, name, funcs={fromWidget: x=>x, toWidget: x=>x}) {
         value: funcs.toWidget(g[name]),
         setter(x) {
             withGroup(id, g => {g[name] = funcs.fromWidget(x)})
+        }
+    }
+}
+
+function valueFromGroup1(g, id, name, idx, funcs={fromWidget: x=>x, toWidget: x=>x}) {
+    return {
+        value: funcs.toWidget(g[name][idx]),
+        setter(x) {
+            withGroup(id, g => {g[name][idx] = funcs.fromWidget(x)})
         }
     }
 }

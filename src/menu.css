@@ -18,6 +18,21 @@ input, button, select, .tooltip, .site-to-track, .popup {
     border-color: #4B4A53;
 }
 
+.border-group * {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+.border-group :not(:first-child) {
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+.border-group :not(:last-child) {
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
 input, button, select {
     height: 25px;
     margin: 2px;
@@ -44,6 +59,19 @@ input:disabled, button:disabled, select:disabled {
 
 button.group-active {
     border-color: #2E89F2;
+}
+
+button.enabled {
+    border-color: #64ADFF;
+    background: #2E89F2;
+}
+
+button.enabled:hover {
+    background: #64ADFF;
+}
+
+button.enabled:active {
+    background: #1F76DA;
 }
 
 .dimmed {

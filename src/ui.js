@@ -127,7 +127,14 @@ function textInput(obj, {value, setter}) {
     })
 }
 
-function checkbox(_unused, label, {value, setter}) {
+function checkbox(style, label, {value, setter}) {
+    if(style === 'button') {
+        return button(
+            {cls: value ? ["button", "enabled"] : ["button"], children: [label]},
+            () => {setter(!value)}
+        )
+    }
+
     return div('same-line', [
         button(
             {cls: value ? ["checkbox", "enabled"] : ["checkbox"]}, 
