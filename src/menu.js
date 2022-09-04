@@ -197,14 +197,21 @@ function groupTimeLine(g,id) { return [
 function groupOptions(g,id) { return [
     div('line', [
         div('line', [
-            button(cls.resettime, () => 
-                browser.runtime.sendMessage({type: 'reset', content: {id: id}})
-            ),
+            button(cls.resettime, () => popup(
+                span({}, [`Are you sure you want to reset time for ${g.name}?`]),
+                div('line', [
+                    button({children: ["No"]}, () => listGroup(id)),
+                    button({children: ["Yes"], cls: ["resettime"]}, () => {
+                        browser.runtime.sendMessage({type: 'reset', content: {id: id}});
+                        listGroup(id);
+                    })
+                ])
+            )),
             tooltip("Automatic rewind occurs every day on 4:00 AM, by subtracting the limit from total time."),
         ]),
 
         button(cls.removegroup, () => popup(
-            span({}, [`Do you want to remove group ${g.name}?`]),
+            span({}, [`Are you sure you want to remove group ${g.name}?`]),
             span({}, ["This operation is irreversible."]),
             div('line', [
                 button({children: ["No"]}, () => listGroup(id)),
