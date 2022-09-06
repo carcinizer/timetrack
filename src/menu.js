@@ -62,9 +62,10 @@ function listGroups() {
 
                     let time_id = `time-${gid}`;
                     let progress_id = `progress-${gid}`;
+                    let group_name_cls = g.enabled ? ['group-name'] : ['group-name', 'dimmed-strong']
 
                     let button_intetiors = [
-                        span('group-name', [`${g.name}`]),
+                        span({cls: group_name_cls}, [`${g.name}`]),
                         span({cls: ['group-time'], id: time_id}, [timeToHms(g.time)]),
                         //span('group-time-remaining', [(timestatus == 'expired' ? '+':'-') + timeToHms(Math.abs(g.limit - g.time))]),
                         span('group-limit', ['/' + timeToHms(g.limit)]),

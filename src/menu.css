@@ -78,6 +78,10 @@ button.enabled:active {
     opacity: 0.6;
 }
 
+.dimmed-strong {
+    opacity: 0.3;
+}
+
 .checkbox {
     width: 32px;
     height: 20px;
