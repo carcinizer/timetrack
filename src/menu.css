@@ -11,7 +11,7 @@ body {
     color: #f1eff5;
 }
 
-input, button, select, .tooltip, .site-to-track, .popup {
+input, button, select, .tooltip, .expandable-root, .popup {
     border-width: 1px;
     border-style: solid;
     border-radius: 6px;
@@ -271,14 +271,14 @@ button.enabled:active {
     text-align: center;
 }
 
-.site-to-track {
+.expandable-root, .site-to-track {
     width: 100%;
     height: auto;
     margin-top: 5px;
     margin-bottom: 5px;
 }
 
-.site-button {
+.expandable-button, .site-button {
     position: relative;
     height: 30px;
     margin: 0px;
@@ -286,7 +286,7 @@ button.enabled:active {
     padding: 5px;
 }
 
-.site-button * {
+.expandable-button * {
     background: #00000000 !important;
 }
 
@@ -301,11 +301,11 @@ button.enabled:active {
     font-style: italic;
 }
 
-.expandable-root:not(.expandable-hidden) .site-button:hover {
+.expandable-root:not(.expandable-hidden) .expandable-button:hover {
     background-image: linear-gradient(#3B3A43, #2B2A33);
 }
 
-.expandable-root:not(.expandable-hidden) .site-button:active {
+.expandable-root:not(.expandable-hidden) .expandable-button:active {
     background-image: linear-gradient(#1B1A23, #2B2A33) !important;
 }
 

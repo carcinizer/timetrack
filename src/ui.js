@@ -184,14 +184,15 @@ function expandable(id, {parent_cls=[], div_cls=[], button_obj={}, children=[]})
     }
 
     return div({id: id, cls: parent_cls}, [
-        button(button_obj, () => {
-            let div = document.getElementById(id);
-            if(div.classList.toggle('expandable-hidden')) {
-                expandables_expanded.delete(id);
-            }
-            else {
-                expandables_expanded.add(id);
-            }
+        button(Object.assign({}, button_obj, {cls: [...button_obj.cls, 'expandable-button']}), 
+            () => {
+                let div = document.getElementById(id);
+                if(div.classList.toggle('expandable-hidden')) {
+                    expandables_expanded.delete(id);
+                }
+                else {
+                    expandables_expanded.add(id);
+                }
         }),
         div({cls: ['expandable-on-show', ...div_cls]}, children)
     ])

@@ -228,15 +228,29 @@ function groupOptions(g,id) { return [
         tooltip("When time's up, depending on tracking settings for active/playing tab, displays a blocking pop-up and/or stops playing audio/video. Requires additional permissions."),
     ]),
 
-    div({cls: ['border-group', 'same-line']}, [
-        checkbox('button', 'Mon', valueFromGroup1(g,id, 'enable_on_weekdays', 1)),
-        checkbox('button', 'Tue', valueFromGroup1(g,id, 'enable_on_weekdays', 2)),
-        checkbox('button', 'Wed', valueFromGroup1(g,id, 'enable_on_weekdays', 3)),
-        checkbox('button', 'Thu', valueFromGroup1(g,id, 'enable_on_weekdays', 4)),
-        checkbox('button', 'Fri', valueFromGroup1(g,id, 'enable_on_weekdays', 5)),
-        checkbox('button', 'Sat', valueFromGroup1(g,id, 'enable_on_weekdays', 6)),
-        checkbox('button', 'Sun', valueFromGroup1(g,id, 'enable_on_weekdays', 0)),
-    ])
+    expandable(`time-settings-${id}`, {
+        button_obj: {
+            cls: ['line-full', ],
+            children: [
+                div('line-full', [
+                    ...decos.expandable,
+                    "Time settings",
+                    ...decos.expandable 
+                ]),
+            ]
+        },
+        children: [
+            div({cls: ['border-group', 'same-line']}, [
+                checkbox('button', 'Mon', valueFromGroup1(g,id, 'enable_on_weekdays', 1)),
+                checkbox('button', 'Tue', valueFromGroup1(g,id, 'enable_on_weekdays', 2)),
+                checkbox('button', 'Wed', valueFromGroup1(g,id, 'enable_on_weekdays', 3)),
+                checkbox('button', 'Thu', valueFromGroup1(g,id, 'enable_on_weekdays', 4)),
+                checkbox('button', 'Fri', valueFromGroup1(g,id, 'enable_on_weekdays', 5)),
+                checkbox('button', 'Sat', valueFromGroup1(g,id, 'enable_on_weekdays', 6)),
+                checkbox('button', 'Sun', valueFromGroup1(g,id, 'enable_on_weekdays', 0)),
+            ]),
+        ]
+    })
 ]}
 
 function groupSites(g,id) { return [
