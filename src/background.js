@@ -85,7 +85,10 @@ function* getAssociatedGroupIDs(tab, data, condition) {
         const group = data.groups[gid];
 
         for (let s in group.sites) {
-            if((condition === undefined || group[condition]) && matcher(group.sites[s])) {
+            if((condition === undefined || group[condition]) 
+               && group.enabled
+               && matcher(group.sites[s])) 
+            {
                 yield gid;
                 break;
             }
@@ -142,6 +145,7 @@ class BackgroundState {
         this.timePassed();
         await this.updateTabs();
         this.rewind();
+        this.updateGroupsEnabled();
         this.timePassed(); // Once again to get max time fractions for currently active tabs
         await this.saveData();
         this.updateIcon();
@@ -216,6 +220,23 @@ class BackgroundState {
         let obj = messages[type](content);
         await state.update()
         sendResponse(obj)
+    }
+
+    updateGroupsEnabled() {
+        for(let gid of this.data.group_order) {
+            const g = this.data.groups[gid];
+
+            let today = new Date();
+            let tz = g.enable_timezone == "UTC" ? "UTC" : "";
+            let weekday = today[`get${tz}Day`]()
+            today[`set${tz}Seconds`](1);
+            today[`set${tz}Minutes`](0);
+            today[`set${tz}Hours`](0);
+
+            let daytime = (new Date()).getTime() - today.getTime();
+
+            g.enabled = g.enable_on_weekdays[weekday]
+        }
     }
 
     timePassed(extra_time) {
