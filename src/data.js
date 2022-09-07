@@ -57,7 +57,7 @@ function newGroup() {
         active_now: false,
         enabled: true,
         enable_on_weekdays: [true, true, true, true, true, true, true],
-        enable_on_hours: true,
+        enable_on_hours: false,
         enable_on_hours_begin_ms: 0,
         enable_on_hours_end_ms: 24*60*60*1000,
         enable_timezone: "local",
