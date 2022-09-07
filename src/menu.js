@@ -239,7 +239,8 @@ function groupOptions(g,id) { return [
                 ]),
             ]
         },
-        children: [
+        children: [div('centered', [
+            "Track on week days:",
             div({cls: ['border-group', 'same-line']}, [
                 checkbox('button', 'Mon', valueFromGroup1(g,id, 'enable_on_weekdays', 1)),
                 checkbox('button', 'Tue', valueFromGroup1(g,id, 'enable_on_weekdays', 2)),
@@ -249,7 +250,14 @@ function groupOptions(g,id) { return [
                 checkbox('button', 'Sat', valueFromGroup1(g,id, 'enable_on_weekdays', 6)),
                 checkbox('button', 'Sun', valueFromGroup1(g,id, 'enable_on_weekdays', 0)),
             ]),
-        ]
+            checkbox({}, "Only track at certain hours", valueFromGroup(g,id, 'enable_on_hours')),
+            g.enable_on_hours ? div('line', [
+                span('small-margin', ['From ']),
+                textInput({cls: ['time-input']}, valueFromGroup(g,id,'enable_on_hours_begin_ms', TimeHMSConvert)),
+                span('small-margin', [' to ']),
+                textInput({cls: ['time-input']}, valueFromGroup(g,id,'enable_on_hours_end_ms', TimeHMSConvert)),
+            ]):[]
+        ])]
     })
 ]}
 
