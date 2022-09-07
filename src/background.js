@@ -234,8 +234,9 @@ class BackgroundState {
             today[`set${tz}Hours`](0);
 
             let daytime = (new Date()).getTime() - today.getTime();
+            let enable_hours = daytime >= g.enable_on_hours_begin_ms && daytime <= g.enable_on_hours_end_ms;
 
-            g.enabled = g.enable_on_weekdays[weekday]
+            g.enabled = g.enable_on_weekdays[weekday] & (!g.enable_on_hours | enable_hours)
         }
     }
 
