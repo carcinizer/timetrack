@@ -2,9 +2,8 @@
 import {span, checkbox, textInput, select, div, button, cls} from './ui.js'
 
 const dayDuration = 24*60*60*1000;
-const resetHour = 4;
 
-function getPastResetDate() {
+function getPastResetDate(resetHour=4) {
     let d = new Date();
     if(d.getHours() < resetHour) {
         d = new Date(d - dayDuration);

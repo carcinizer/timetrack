@@ -326,13 +326,14 @@ class BackgroundState {
     }
 
     rewind(force) {
-        if(force || typeof this.data.last_reset != "number" || this.data.last_reset + dayDuration < new Date(this.now())) {
-            for(let gid in this.data.groups) {
-                const group = this.data.groups[gid];
+        for(let gid in this.data.groups) {
+            const group = this.data.groups[gid];
+
+            if(force || group.next_reset < new Date(this.now())) {
                 group.time = Math.max(0, group.time - group.limit)
                 group.extra_time = 0;
+                group.next_reset = getPastResetDate(0) + dayDuration + this.data.groups;
             }
-            this.data.last_reset = getPastResetDate();
         }
         return this
     }

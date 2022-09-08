@@ -44,7 +44,7 @@
 
 const loc = "sync"; // "local" or "sync"
 
-const DATA_VERSION = 11;
+const DATA_VERSION = 12;
 
 function newGroup() {
     return {
@@ -65,14 +65,15 @@ function newGroup() {
         dont_track_unfocused_window: true,
         track_playing: false,
         track_active: true,
-        max_extra_time: 15*60*1000
+        max_extra_time: 15*60*1000,
+        next_reset: Date.now(),
+        reset_at_ms: 4*60*60*1000
     }
 }
 
 function newData() {
     return {
         version: DATA_VERSION,
-        last_reset: Date.now(),
         groups: {},
         group_order: [],
         paused: false
