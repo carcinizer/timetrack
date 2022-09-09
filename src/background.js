@@ -262,6 +262,12 @@ class BackgroundState {
     tabTimePassed(tab, time, condition) {
         let matcher = match(tab);
         let tab_focused = this.focused_window && this.focused_window.id == tab.windowId;
+        let block_on_timeout = false;
+        let timeout = false;
+        let track_active = false;
+        let track_playing = false;
+        let extra_time = 0;
+        let max_extra_time = 24*60*60*1000;
 
         for (let gid of getAssociatedGroupIDs(tab, this.data, condition)) {
             const group = this.data.groups[gid];
@@ -279,25 +285,32 @@ class BackgroundState {
                 group.time += time;
             }
             
-            this.blockOnTimeout(tab, group);
+            block_on_timeout = block_on_timeout | group.block_after_timeout;
+            timeout = timeout | group.time > group.limit + group.extra_time;
+            track_active = track_active | group.track_active;
+            track_playing = track_playing | group.track_playing;
+
+            if((group.max_extra_time - group.extra_time) < (max_extra_time - extra_time)) {
+                extra_time = group.extra_time;
+                max_extra_time = group.max_extra_time;
+            }
 
             this.max_timefrac_active = Math.max(this.max_timefrac_active, group.time / group.limit);
         }
+        
+        if(block_on_timeout)
+            this.blockOnTimeout(tab, timeout, track_active, track_playing, extra_time, max_extra_time);
     }
 
-    async blockOnTimeout(tab, group) {
-
-        if(!group.block_after_timeout) return;
-
-        let timeout = group.time > group.limit + group.extra_time;
+    async blockOnTimeout(tab, timeout, track_active, track_playing, extra_time, max_extra_time) {
 
         if(await browser.permissions.contains({origins: ["<all_urls>"]})) {
 
             let message = {
-                should_be_blocked: timeout && group.track_active, 
-                should_be_paused: timeout && (group.track_active || group.track_playing),
-                extra_time: group.extra_time, 
-                max_extra_time: group.max_extra_time
+                should_be_blocked: timeout && track_active, 
+                should_be_paused: timeout && (track_active || track_playing),
+                extra_time: extra_time, 
+                max_extra_time: max_extra_time
             }
 
             // Check if content script exists for a given tab 
@@ -306,11 +319,11 @@ class BackgroundState {
             }
             catch {  // Create it if doesn't exist and there's a timeout
                 if(timeout) {
-                    if(group.track_active) {
+                    if(track_active) {
                         await browser.tabs.insertCSS(tab.id, {file: "/src/timeout.css"})
                         await browser.tabs.executeScript(tab.id, {file: "/src/timeout.js"})
                     }
-                    if(group.track_playing || group.track_active) {
+                    if(track_playing || track_active) {
                         await browser.tabs.executeScript(tab.id, {file: "/src/timeoutplaying.js"})
                     }
                     await browser.tabs.sendMessage(tab.id, message)
