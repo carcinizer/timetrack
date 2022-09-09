@@ -3,7 +3,6 @@
 //
 // Data:
 //  version: int = DATA_VERSION
-//  last_reset: int
 //  groups: {int: Group}
 //  group_order: [int]
 //  paused: bool
@@ -26,6 +25,9 @@
 //  dont_track_unfocused_window: bool
 //  track_playing: bool
 //  track_active: bool
+//  max_extra_time: int
+//  next_reset: int
+//  reset_at_ms: int
 //
 // Site:
 //  method: String
