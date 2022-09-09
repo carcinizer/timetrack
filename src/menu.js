@@ -25,6 +25,7 @@ import {
 let table_root = document.getElementById("table_root");
 let warning = document.getElementById("warning");
 let periodic_actions = [];
+let dragging_function = null;
 
 let wantToExport = false;
 
@@ -449,7 +450,6 @@ function updateWarning() {
 }
 
 
-let dragging_function = null;
 
 function drag(ev) {
     ev.dataTransfer.setData('old', ev.target.drag_no);
