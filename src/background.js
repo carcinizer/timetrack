@@ -209,10 +209,13 @@ class BackgroundState {
                 group.time += time;
             }
             
-            block_on_timeout = block_on_timeout | group.block_after_timeout;
-            timeout = timeout | group.time > group.limit + group.extra_time;
-            track_active = track_active | group.track_active;
-            track_playing = track_playing | group.track_playing;
+            let timeout_local = group.time > group.limit + group.extra_time;
+            if(timeout_local) {
+                timeout = timeout | timeout_local;
+                block_on_timeout = block_on_timeout | group.block_after_timeout;
+                track_active = track_active | group.track_active;
+                track_playing = track_playing | group.track_playing;
+            }
 
             if((group.max_extra_time - group.extra_time) < (max_extra_time - extra_time)) {
                 extra_time = group.extra_time;
