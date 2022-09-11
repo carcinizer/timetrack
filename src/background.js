@@ -136,7 +136,11 @@ class BackgroundState {
             },
             moreTime({amount}) {
                 for(let gid of getAssociatedGroupIDs(sender.tab, state.data)) {
-                    state.data.groups[gid].extra_time += amount;
+                    const group = state.data.groups[gid];
+
+                    if(group.time + amount > group.limit + group.extra_time) {
+                        group.extra_time += amount;
+                    }
                 }
             }
         }
