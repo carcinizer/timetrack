@@ -273,10 +273,10 @@ class BackgroundState {
         for(let gid in this.data.groups) {
             const group = this.data.groups[gid];
 
-            if(force || group.next_reset < new Date(this.now())) {
+            if(force || group.next_reset < this.now() || typeof group.next_reset != 'number') {
                 group.time = Math.max(0, group.time - group.limit)
                 group.extra_time = 0;
-                group.next_reset = getPastResetDate() + dayDuration + this.data.groups;
+                group.next_reset = getPastResetDate() + dayDuration;
             }
         }
         return this
